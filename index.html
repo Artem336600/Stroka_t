@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Анализатор текста</title>
+    <link rel="stylesheet" href="static/css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <h1>Анализатор текста</h1>
+            <p class="app-description">Анализируйте текст и получайте детальную статистику о его структуре и содержании.</p>
+        </header>
+
+        <main class="app-main">
+            <section class="input-section">
+                <form id="analyze-form">
+                    <div class="textarea-wrapper">
+                        <label for="text-input">Введите или вставьте текст для анализа</label>
+                        <textarea 
+                            id="text-input" 
+                            placeholder="Введите текст (не менее 10 символов)..."
+                            rows="10"
+                            required
+                        ></textarea>
+                        <div class="input-footer">
+                            <span id="char-counter">0 символов</span>
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button type="button" id="clear-btn" class="btn secondary-btn">Очистить</button>
+                        <button type="submit" id="analyze-btn" class="btn primary-btn" disabled>Анализировать</button>
+                    </div>
+                </form>
+            </section>
+
+            <div id="progress-bar" class="progress-bar" style="display: none;">
+                <div id="progress-indicator" class="progress-indicator"></div>
+            </div>
+
+            <section id="results-section" class="results-section" style="display: none;">
+                <h2 class="results-title">Результаты анализа</h2>
+                <div id="results-container" class="results-container">
+                    <div class="no-results">
+                        Введите текст и нажмите "Анализировать" для получения результатов
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="app-footer">
+            <p>&copy; 2023 Анализатор текста | Все права защищены</p>
+        </footer>
+    </div>
+
+    <script src="static/js/script.js"></script>
+</body>
+</html> 

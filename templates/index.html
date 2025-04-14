@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Сервис извлечения тегов</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <main class="app-main">
+            <form id="description-form">
+                <div class="input-container">
+                    <textarea 
+                        id="description" 
+                        placeholder="Введите описание для извлечения тегов..."
+                        autofocus
+                        aria-label="Текст для анализа"
+                    ></textarea>
+                    <div id="char-counter" class="char-counter">0/1000</div>
+                    <button type="submit" id="submit-btn" class="submit-btn" disabled title="Отправить на обработку">
+                        <i class="bi bi-send-fill"></i>
+                    </button>
+                </div>
+                
+                <div id="progress-container" class="progress-container">
+                    <div class="progress-bar">
+                        <div id="progress-indicator" class="progress-indicator"></div>
+                    </div>
+                </div>
+            </form>
+            
+            <section id="results" class="results-section">
+                <div class="results-header">
+                    <h2 class="section-title">Найденные теги</h2>
+                    <button id="add-tag-btn" class="add-tag-btn" title="Добавить новый тег">
+                        <i class="bi bi-plus-lg"></i>
+                        Добавить тег
+                    </button>
+                </div>
+                <div id="results-container" class="tags-container"></div>
+            </section>
+        </main>
+    </div>
+    
+    <!-- Модальное окно с тегами -->
+    <div id="tags-modal-overlay" class="tags-modal-overlay">
+        <div id="tags-menu" class="tags-menu">
+            <div class="tags-menu-header">
+                <div class="tags-menu-title">Выберите теги</div>
+                <i class="bi bi-x tags-menu-close" id="tags-menu-close"></i>
+            </div>
+            
+            <div class="tags-menu-search">
+                <input type="text" id="tags-search" placeholder="Поиск тегов...">
+            </div>
+            
+            <div class="tags-menu-content">
+                <div id="tags-menu-categories" class="tags-menu-categories">
+                    <!-- Категории тегов будут добавлены динамически -->
+                </div>
+            </div>
+            
+            <div class="tags-menu-footer">
+                <button id="tags-menu-cancel" class="tags-menu-btn tags-menu-cancel">Отмена</button>
+                <button id="tags-menu-apply" class="tags-menu-btn tags-menu-apply">Применить</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="/static/js/main.js"></script>
+</body>
+</html> 

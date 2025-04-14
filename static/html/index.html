@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Извлечение тегов из текста</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <h1>Извлечение тегов</h1>
+            <p class="description">Введите текст для автоматического извлечения тегов и ключевых слов</p>
+        </header>
+        
+        <main>
+            <!-- Секция ввода -->
+            <section class="input-section">
+                <form id="description-form">
+                    <div class="input-container">
+                        <textarea 
+                            id="description-input" 
+                            placeholder="Введите или вставьте текст описания..."
+                            rows="4"
+                            autofocus
+                        ></textarea>
+                        <div class="counter-container">
+                            <span id="char-counter" class="char-counter">0/1000</span>
+                        </div>
+                        <div class="form-help">
+                            <span>Ctrl + Enter для отправки</span>
+                        </div>
+                    </div>
+                    <div class="buttons-container">
+                        <button type="submit" id="submit-btn" class="submit-btn" disabled>Извлечь теги</button>
+                        <button type="button" id="analyze-btn" class="analyze-btn" disabled>Анализировать текст</button>
+                    </div>
+                </form>
+                
+                <!-- Индикатор прогресса -->
+                <div class="progress-bar">
+                    <div class="progress-indicator"></div>
+                </div>
+            </section>
+            
+            <!-- Секция результатов тегов -->
+            <section class="results-section" style="display: none;">
+                <h2>Результаты анализа тегов</h2>
+                <div class="results-container">
+                    <!-- Здесь будут отображаться результаты -->
+                </div>
+            </section>
+            
+            <!-- Секция анализа текста -->
+            <section class="text-analysis-section" style="display: none;">
+                <h2>Статистический анализ текста</h2>
+                <div id="results-container"></div>
+                <div class="no-results">Введите текст для анализа</div>
+            </section>
+        </main>
+        
+        <footer>
+            <p>&copy; 2023 Все права защищены</p>
+        </footer>
+    </div>
+    
+    <script src="/static/js/main.js"></script>
+    <script src="/static/js/script.js"></script>
+</body>
+</html> 
