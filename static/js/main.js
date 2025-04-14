@@ -37,6 +37,15 @@ document.addEventListener('DOMContentLoaded', function() {
         'Путешествия и туризм': '#f97316'
     };
     
+    // Элементы авторизации
+    const profileBtn = document.getElementById('profile-btn');
+    const authModalOverlay = document.getElementById('auth-modal-overlay');
+    const authModalClose = document.getElementById('auth-modal-close');
+    const authTabs = document.querySelectorAll('.auth-tab');
+    const authForms = document.querySelectorAll('.auth-form');
+    const loginForm = document.getElementById('login-form');
+    const registerForm = document.getElementById('register-form');
+    
     // Обработка ввода текста и обновление счетчика
     textarea.addEventListener('input', function() {
         const length = this.value.length;
@@ -770,4 +779,135 @@ document.addEventListener('DOMContentLoaded', function() {
             closeModal();
         }
     });
+    
+    // Открытие модального окна авторизации
+    profileBtn.addEventListener('click', function() {
+        authModalOverlay.classList.add('active');
+    });
+    
+    // Закрытие модального окна авторизации
+    authModalClose.addEventListener('click', function() {
+        authModalOverlay.classList.remove('active');
+    });
+    
+    // Закрытие модального окна при клике вне его
+    authModalOverlay.addEventListener('click', function(e) {
+        if (e.target === authModalOverlay) {
+            authModalOverlay.classList.remove('active');
+        }
+    });
+    
+    // Переключение между вкладками входа и регистрации
+    authTabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            const targetTab = this.dataset.tab;
+            
+            // Обновляем активные вкладки
+            authTabs.forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Обновляем активные формы
+            authForms.forEach(form => {
+                form.classList.remove('active');
+                if (form.id === `${targetTab}-form`) {
+                    form.classList.add('active');
+                }
+            });
+            
+            // Обновляем заголовок модального окна
+            document.querySelector('.auth-modal-title').textContent = 
+                targetTab === 'login' ? 'Вход в систему' : 'Регистрация';
+        });
+    });
+    
+    // Обработка формы входа
+    loginForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const email = document.getElementById('login-email').value;
+        const password = document.getElementById('login-password').value;
+        
+        // Отправка данных на сервер
+        fetch('/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email, password })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                authModalOverlay.classList.remove('active');
+                updateProfileButton(data.user);
+            } else {
+                alert(data.error || 'Ошибка при входе');
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка:', error);
+            alert('Произошла ошибка при входе');
+        });
+    });
+    
+    // Обработка формы регистрации
+    registerForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const name = document.getElementById('register-name').value;
+        const email = document.getElementById('register-email').value;
+        const password = document.getElementById('register-password').value;
+        const confirmPassword = document.getElementById('register-confirm-password').value;
+        
+        // Проверка совпадения паролей
+        if (password !== confirmPassword) {
+            alert('Пароли не совпадают');
+            return;
+        }
+        
+        // Отправка данных на сервер
+        fetch('/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ name, email, password })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                authModalOverlay.classList.remove('active');
+                updateProfileButton(data.user);
+            } else {
+                alert(data.error || 'Ошибка при регистрации');
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка:', error);
+            alert('Произошла ошибка при регистрации');
+        });
+    });
+    
+    // Функция обновления кнопки профиля
+    function updateProfileButton(user) {
+        if (user) {
+            profileBtn.innerHTML = `<i class="bi bi-person-circle"></i>`;
+            profileBtn.title = user.name;
+        } else {
+            profileBtn.innerHTML = `<i class="bi bi-person-circle"></i>`;
+            profileBtn.title = 'Профиль';
+        }
+    }
+    
+    // Проверка состояния авторизации при загрузке страницы
+    fetch('/check_auth')
+        .then(response => response.json())
+        .then(data => {
+            if (data.authenticated) {
+                updateProfileButton(data.user);
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка при проверке авторизации:', error);
+        });
 }); 

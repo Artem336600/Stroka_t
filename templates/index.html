@@ -10,6 +10,11 @@
 </head>
 <body>
     <div class="app-container">
+        <!-- Кнопка профиля -->
+        <button id="profile-btn" class="profile-btn" title="Профиль">
+            <i class="bi bi-person-circle"></i>
+        </button>
+
         <main class="app-main">
             <form id="description-form">
                 <div class="input-container">
@@ -43,6 +48,55 @@
                 <div id="results-container" class="tags-container"></div>
             </section>
         </main>
+    </div>
+    
+    <!-- Модальное окно авторизации -->
+    <div id="auth-modal-overlay" class="auth-modal-overlay">
+        <div id="auth-modal" class="auth-modal">
+            <div class="auth-modal-header">
+                <div class="auth-modal-title">Вход в систему</div>
+                <i class="bi bi-x auth-modal-close" id="auth-modal-close"></i>
+            </div>
+            
+            <div class="auth-modal-content">
+                <div class="auth-tabs">
+                    <button class="auth-tab active" data-tab="login">Вход</button>
+                    <button class="auth-tab" data-tab="register">Регистрация</button>
+                </div>
+                
+                <form id="login-form" class="auth-form active">
+                    <div class="form-group">
+                        <label for="login-email">Email</label>
+                        <input type="email" id="login-email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Пароль</label>
+                        <input type="password" id="login-password" required>
+                    </div>
+                    <button type="submit" class="auth-submit-btn">Войти</button>
+                </form>
+                
+                <form id="register-form" class="auth-form">
+                    <div class="form-group">
+                        <label for="register-name">Имя</label>
+                        <input type="text" id="register-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-email">Email</label>
+                        <input type="email" id="register-email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-password">Пароль</label>
+                        <input type="password" id="register-password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-confirm-password">Подтвердите пароль</label>
+                        <input type="password" id="register-confirm-password" required>
+                    </div>
+                    <button type="submit" class="auth-submit-btn">Зарегистрироваться</button>
+                </form>
+            </div>
+        </div>
     </div>
     
     <!-- Модальное окно с тегами -->
