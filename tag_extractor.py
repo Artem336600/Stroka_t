@@ -11,7 +11,8 @@ def extract_tags(description):
                 subcategory]
     prompt = f"""
     У меня есть описание проекта или интересов: "{description}".
-    Пожалуйста, выбери из следующего списка тегов те, которые лучше всего соответствуют описанию: {', '.join(all_tags)}.
+    Пожалуйста, выбери из следующего списка тегов НЕ БОЛЕЕ 10 тегов, которые лучше всего соответствуют описанию: {', '.join(all_tags)}.
+    Важно: выбери только самые релевантные теги, максимум 10 штук.
     Верни только список подходящих тегов, разделенных запятыми, ничего лишнего.
     """
 
@@ -21,7 +22,7 @@ def extract_tags(description):
             model="deepseek-chat",
             messages=[
                 {"role": "system",
-                 "content": "You are a helpful assistant that extracts relevant tags from descriptions."},
+                 "content": "You are a helpful assistant that extracts only the most relevant tags from descriptions. You must return no more than 10 tags."},
                 {"role": "user", "content": prompt},
             ],
             stream=False
@@ -30,6 +31,9 @@ def extract_tags(description):
         # Получаем результат
         result = response.choices[0].message.content.strip()
         selected_tags = result.split(", ") if result else []
+        
+        # Ограничиваем количество тегов до 10
+        selected_tags = selected_tags[:10]
 
         # Организуем теги по категориям и подкатегориям для вывода
         categorized_result = {
