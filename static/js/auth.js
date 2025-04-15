@@ -834,6 +834,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // Обработка кнопок навигации шага 4
     if (step4NextBtn) {
         step4NextBtn.addEventListener('click', function() {
+            // Собираем выбранные теги в массив
+            const tagsArray = Array.from(selectedTags);
+            
+            // Получаем описание о себе
+            const aboutMe = descriptionText.value.trim();
+            
             // Отправляем данные регистрации на сервер
             fetch('/register/complete', {
                 method: 'POST',
@@ -842,7 +848,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 body: JSON.stringify({
                     telegram_username: currentTelegramUsername,
-                    password: regPassword.value
+                    password: regPassword.value,
+                    about_me: aboutMe,
+                    tags: tagsArray
                 })
             })
             .then(response => response.json())
@@ -851,6 +859,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Показываем шаг успешной регистрации
                     showStep(5);
                     startConfetti();
+                    
+                    // Автоматический вход пользователя
+                    updateProfileButton(data.user);
+                    
+                    // Закрываем модальное окно через 3 секунды
+                    setTimeout(() => {
+                        bootstrapModal.hide();
+                        showNotification('Вы успешно зарегистрированы и вошли в систему', 'success');
+                    }, 3000);
                 } else {
                     showNotification(data.error || 'Ошибка при регистрации', 'error');
                 }

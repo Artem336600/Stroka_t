@@ -143,6 +143,8 @@ def register_complete():
     data = request.json
     telegram_username = data.get('telegram_username')
     password = data.get('password')
+    about_me = data.get('about_me')
+    tags = data.get('tags')
     
     logger.debug(f"Получен запрос на завершение регистрации для {telegram_username}")
     
@@ -158,7 +160,9 @@ def register_complete():
     # Регистрируем пользователя
     success, message = register_user(
         clean_username, 
-        password
+        password,
+        about_me,
+        tags
     )
     
     if success:
