@@ -8,6 +8,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const registerForm = document.getElementById('registerForm');
     const loginBtn = document.getElementById('loginBtn');
     
+    // Кнопки показа/скрытия пароля
+    const passwordToggleButtons = document.querySelectorAll('.password-toggle');
+    
     // Элементы многошаговой регистрации
     const registerSteps = document.querySelectorAll('.register-step');
     const stepDots = document.querySelectorAll('.step-dot');
@@ -1184,4 +1187,30 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         })
         .catch(error => console.error('Ошибка при проверке аутентификации:', error));
+    
+    // Обработчики для кнопок показа/скрытия пароля
+    if (passwordToggleButtons.length > 0) {
+        passwordToggleButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const targetId = this.getAttribute('data-target');
+                const passwordInput = document.getElementById(targetId);
+                
+                if (passwordInput) {
+                    // Изменяем тип поля
+                    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                    passwordInput.setAttribute('type', type);
+                    
+                    // Изменяем иконку
+                    const icon = this.querySelector('i');
+                    if (type === 'text') {
+                        icon.classList.remove('bi-eye');
+                        icon.classList.add('bi-eye-slash');
+                    } else {
+                        icon.classList.remove('bi-eye-slash');
+                        icon.classList.add('bi-eye');
+                    }
+                }
+            });
+        });
+    }
 }); 

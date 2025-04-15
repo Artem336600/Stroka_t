@@ -24,7 +24,7 @@
                             <label for="loginUsername">Telegram-имя пользователя</label>
                             <div class="input-icon-wrap">
                                 <i class="bi bi-telegram input-icon"></i>
-                                <input type="text" id="loginUsername" class="form-control" placeholder="Введите @username (обязательно с @)">
+                                <input type="text" id="loginUsername" class="form-control" placeholder="Введите @username">
                             </div>
                         </div>
                         <div class="form-group">
@@ -32,10 +32,13 @@
                             <div class="input-icon-wrap">
                                 <i class="bi bi-lock input-icon"></i>
                                 <input type="password" id="loginPassword" class="form-control" placeholder="Введите ваш пароль">
+                                <button type="button" class="password-toggle" data-target="loginPassword">
+                                    <i class="bi bi-eye"></i>
+                                </button>
                             </div>
                         </div>
                         <div class="form-actions">
-                            <button type="button" id="loginBtn" class="btn auth-submit-btn w-100">
+                            <button type="button" id="loginBtn" class="auth-submit-btn">
                                 <span>Войти</span>
                                 <i class="bi bi-box-arrow-in-right ms-2"></i>
                             </button>
@@ -70,7 +73,7 @@
                             </div>
                             <div class="step-dot" data-step="4">
                                 <div class="step-dot-inner"></div>
-                                <div class="step-label">Описание</div>
+                                <div class="step-label">О себе</div>
                             </div>
                             <div class="step-dot" data-step="5">
                                 <div class="step-dot-inner"></div>
@@ -87,12 +90,13 @@
                                 <label for="regUsername">Telegram-имя пользователя</label>
                                 <div class="input-icon-wrap">
                                     <i class="bi bi-telegram input-icon"></i>
-                                    <input type="text" id="regUsername" class="form-control" placeholder="Введите @username (обязательно с @)">
+                                    <input type="text" id="regUsername" class="form-control" placeholder="Введите @username">
                                 </div>
-                                <small class="form-text text-muted">Введите ваше имя пользователя в Telegram, обязательно с символом @</small>
+                                <div class="form-text">Введите ваше имя пользователя в Telegram с символом @</div>
                             </div>
                             <div class="form-actions">
-                                <button type="button" id="step1NextBtn" class="btn auth-submit-btn w-100">
+                                <div></div> <!-- Пустой элемент для выравнивания -->
+                                <button type="button" id="step1NextBtn" class="auth-submit-btn">
                                     <span>Продолжить</span>
                                     <i class="bi bi-arrow-right ms-2"></i>
                                 </button>
@@ -110,11 +114,11 @@
                                     <h4>Как подтвердить регистрацию</h4>
                                 </div>
                                 <div class="telegram-instructions-content">
-                                    <p>Выполните следующие шаги для подтверждения вашей регистрации:</p>
+                                    <p>Выполните следующие шаги для подтверждения:</p>
                                     <ol>
                                         <li><span class="step-number">1</span> Перейдите к нашему боту в Telegram</li>
                                         <li><span class="step-number">2</span> Отправьте боту команду <code>/start</code></li>
-                                        <li><span class="step-number">3</span> Получите код подтверждения и введите его ниже</li>
+                                        <li><span class="step-number">3</span> Получите код и введите его ниже</li>
                                     </ol>
                                     
                                     <div class="telegram-bot-link">
@@ -134,10 +138,10 @@
                                 </div>
                             </div>
                             <div class="form-actions">
-                                <button type="button" id="step2BackBtn" class="btn auth-back-btn">
+                                <button type="button" id="step2BackBtn" class="auth-back-btn">
                                     <i class="bi bi-arrow-left"></i>
                                 </button>
-                                <button type="button" id="step2NextBtn" class="btn auth-submit-btn">
+                                <button type="button" id="step2NextBtn" class="auth-submit-btn">
                                     <span>Подтвердить</span>
                                     <i class="bi bi-check-lg ms-2"></i>
                                 </button>
@@ -154,24 +158,30 @@
                                 <div class="input-icon-wrap">
                                     <i class="bi bi-lock input-icon"></i>
                                     <input type="password" id="regPassword" class="form-control" placeholder="Минимум 8 символов">
+                                    <button type="button" class="password-toggle" data-target="regPassword">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
                                 </div>
                                 <div class="password-strength">
-                                    <div class="strength-bar" id="passwordStrengthBar"></div>
-                                    <div class="strength-text" id="passwordStrengthText">Слабый пароль</div>
+                                    <div class="strength-bar" id="passwordStrengthBar" data-strength="0"></div>
+                                    <div class="strength-text" id="passwordStrengthText" data-strength="0">Введите пароль</div>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label for="regPasswordConfirm">Подтвердите пароль</label>
                                 <div class="input-icon-wrap">
-                                    <i class="bi bi-lock-check input-icon"></i>
+                                    <i class="bi bi-shield-lock input-icon"></i>
                                     <input type="password" id="regPasswordConfirm" class="form-control" placeholder="Повторите пароль">
+                                    <button type="button" class="password-toggle" data-target="regPasswordConfirm">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
                                 </div>
                             </div>
                             <div class="form-actions">
-                                <button type="button" id="step3BackBtn" class="btn auth-back-btn">
+                                <button type="button" id="step3BackBtn" class="auth-back-btn">
                                     <i class="bi bi-arrow-left"></i>
                                 </button>
-                                <button type="button" id="step3NextBtn" class="btn auth-submit-btn">
+                                <button type="button" id="step3NextBtn" class="auth-submit-btn">
                                     <span>Продолжить</span>
                                     <i class="bi bi-arrow-right ms-2"></i>
                                 </button>
@@ -184,13 +194,13 @@
                             <p class="step-description">Опишите свои интересы, навыки и опыт, и мы автоматически подберем подходящие теги.</p>
                             
                             <div class="input-container position-relative">
-                                <textarea id="descriptionText" class="form-control" placeholder="Опишите ваши интересы, навыки, опыт работы, образование или хобби..." maxlength="1500" rows="5"></textarea>
+                                <textarea id="descriptionText" class="form-control" placeholder="Опишите ваши интересы, навыки, опыт работы..." maxlength="1500" rows="5"></textarea>
                                 <div id="descriptionCharCounter" class="char-counter">0/500</div>
                             </div>
                             
                             <div class="analyze-container">
                                 <button id="descriptionAnalyzeBtn" class="btn analyze-btn" type="button" disabled>
-                                    <i class="bi bi-lightning-charge me-2"></i>Проанализировать
+                                    <i class="bi bi-lightning-charge me-2"></i>Анализировать
                                 </button>
                             </div>
                             
@@ -215,7 +225,7 @@
                                     <i class="bi bi-arrow-left"></i>
                                 </button>
                                 <button id="step4NextBtn" class="auth-submit-btn" type="button">
-                                    <span>Завершить регистрацию</span>
+                                    <span>Завершить</span>
                                     <i class="bi bi-check-lg ms-2"></i>
                                 </button>
                             </div>
@@ -228,7 +238,7 @@
                                 <i class="bi bi-check-circle-fill"></i>
                                 <h3>Регистрация успешна!</h3>
                                 <p>Ваш аккаунт успешно создан и вы автоматически вошли в систему.</p>
-                                <button type="button" id="goToLoginBtn" class="btn auth-submit-btn">
+                                <button type="button" id="goToLoginBtn" class="auth-submit-btn">
                                     <span>Закрыть</span>
                                     <i class="bi bi-check-lg ms-2"></i>
                                 </button>
