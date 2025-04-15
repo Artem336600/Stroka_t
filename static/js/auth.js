@@ -30,27 +30,27 @@ document.addEventListener('DOMContentLoaded', function() {
     const step3BackBtn = document.getElementById('step3BackBtn');
     const step3NextBtn = document.getElementById('step3NextBtn');
     
-    // Шаг 4: Демонстрация анализа тегов
+    // Шаг 4: Анализ описания проекта
     const step4 = document.getElementById('step4');
-    const demoText = document.getElementById('demoText');
-    const demoCharCounter = document.getElementById('demoCharCounter');
-    const demoAnalyzeBtn = document.getElementById('demoAnalyzeBtn');
-    const demoProgressContainer = document.getElementById('demoProgressContainer');
-    const demoProgressIndicator = document.getElementById('demoProgressIndicator');
-    const demoTagsSection = document.getElementById('demoTagsSection');
-    const demoTagsContainer = document.getElementById('demoTagsContainer');
-    const demoAddTagBtn = document.getElementById('demoAddTagBtn');
+    const descriptionText = document.getElementById('descriptionText');
+    const descriptionCharCounter = document.getElementById('descriptionCharCounter');
+    const analyzeBtn = document.getElementById('descriptionAnalyzeBtn');
+    const analysisProgressContainer = document.getElementById('descriptionProgressContainer');
+    const analysisProgressIndicator = document.getElementById('descriptionProgressIndicator');
+    const tagsSection = document.getElementById('descriptionTagsSection');
+    const tagsContainer = document.getElementById('descriptionTagsContainer');
+    const addTagBtn = document.getElementById('descriptionAddTagBtn');
     const step4BackBtn = document.getElementById('step4BackBtn');
     const step4NextBtn = document.getElementById('step4NextBtn');
     
     // Элементы модального окна с тегами
-    const demoTagsModalOverlay = document.getElementById('demo-tags-modal-overlay');
-    const demoTagsMenu = document.getElementById('demo-tags-menu');
-    const demoTagsMenuClose = document.getElementById('demo-tags-menu-close');
-    const demoTagsMenuCancel = document.getElementById('demo-tags-menu-cancel');
-    const demoTagsMenuApply = document.getElementById('demo-tags-menu-apply');
-    const demoTagsSearch = document.getElementById('demo-tags-search');
-    const demoTagsMenuCategories = document.getElementById('demo-tags-menu-categories');
+    const tagsModalOverlay = document.getElementById('description-tags-modal-overlay');
+    const tagsMenu = document.getElementById('description-tags-menu');
+    const tagsMenuClose = document.getElementById('description-tags-menu-close');
+    const tagsMenuCancel = document.getElementById('description-tags-menu-cancel');
+    const tagsMenuApply = document.getElementById('description-tags-menu-apply');
+    const tagsSearch = document.getElementById('description-tags-search');
+    const tagsMenuCategories = document.getElementById('description-tags-menu-categories');
     
     // Шаг 5: Успешная регистрация
     const step5 = document.getElementById('step5');
@@ -66,10 +66,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const totalSteps = 5;
     let currentStep = 1;
     
-    // Хранение тегов для демо-режима
-    let demoSelectedTags = new Set();
-    let demoTempSelectedTags = new Set();
-    const MAX_DEMO_CHARS = 500;
+    // Хранение тегов для описания проекта
+    let selectedTags = new Set();
+    let tempSelectedTags = new Set();
+    const MAX_DESCRIPTION_CHARS = 500;
     
     // Обработка Bootstrap модального окна
     const bootstrapModal = new bootstrap.Modal(authModal);
@@ -123,15 +123,15 @@ document.addEventListener('DOMContentLoaded', function() {
         if (confirmationCode) confirmationCode.value = '';
         if (regPassword) regPassword.value = '';
         if (regPasswordConfirm) regPasswordConfirm.value = '';
-        if (demoText) demoText.value = '';
-        if (demoCharCounter) demoCharCounter.textContent = '0/500';
+        if (descriptionText) descriptionText.value = '';
+        if (descriptionCharCounter) descriptionCharCounter.textContent = '0/500';
         
-        // Скрываем секцию с тегами в демо
-        if (demoTagsSection) demoTagsSection.style.display = 'none';
+        // Скрываем секцию с тегами в описании
+        if (tagsSection) tagsSection.style.display = 'none';
         
-        // Очищаем теги в демо
-        if (demoTagsContainer) demoTagsContainer.innerHTML = '';
-        demoSelectedTags.clear();
+        // Очищаем теги в описании
+        if (tagsContainer) tagsContainer.innerHTML = '';
+        selectedTags.clear();
         
         // Показываем только первый шаг
         registerSteps.forEach(step => step.classList.remove('active'));
@@ -360,44 +360,44 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Обработка шага 4 - Демонстрация анализа тегов
+    // Обработка шага 4 - Анализ описания проекта
     
-    // Отслеживание ввода текста в демо-поле
-    if (demoText) {
-        demoText.addEventListener('input', function() {
+    // Отслеживание ввода текста в описании
+    if (descriptionText) {
+        descriptionText.addEventListener('input', function() {
             const length = this.value.length;
-            demoCharCounter.textContent = `${length}/${MAX_DEMO_CHARS}`;
+            descriptionCharCounter.textContent = `${length}/${MAX_DESCRIPTION_CHARS}`;
             
             // Изменение стиля счетчика в зависимости от количества символов
-            if (length > MAX_DEMO_CHARS * 0.8 && length <= MAX_DEMO_CHARS) {
-                demoCharCounter.className = 'char-counter warning';
-            } else if (length > MAX_DEMO_CHARS) {
-                demoCharCounter.className = 'char-counter danger';
-                demoAnalyzeBtn.disabled = true;
+            if (length > MAX_DESCRIPTION_CHARS * 0.8 && length <= MAX_DESCRIPTION_CHARS) {
+                descriptionCharCounter.className = 'char-counter warning';
+            } else if (length > MAX_DESCRIPTION_CHARS) {
+                descriptionCharCounter.className = 'char-counter danger';
+                analyzeBtn.disabled = true;
             } else {
-                demoCharCounter.className = 'char-counter';
-                demoAnalyzeBtn.disabled = false;
+                descriptionCharCounter.className = 'char-counter';
+                analyzeBtn.disabled = false;
             }
             
             // Активируем кнопку анализа только если есть текст
-            demoAnalyzeBtn.disabled = this.value.trim().length === 0 || length > MAX_DEMO_CHARS;
+            analyzeBtn.disabled = this.value.trim().length === 0 || length > MAX_DESCRIPTION_CHARS;
         });
     }
     
-    // Обработка кнопки анализа в демо-режиме
-    if (demoAnalyzeBtn) {
-        demoAnalyzeBtn.addEventListener('click', function() {
-            const text = demoText.value.trim();
-            if (!text || text.length > MAX_DEMO_CHARS) return;
+    // Обработка кнопки анализа в описании
+    if (analyzeBtn) {
+        analyzeBtn.addEventListener('click', function() {
+            const text = descriptionText.value.trim();
+            if (!text || text.length > MAX_DESCRIPTION_CHARS) return;
             
             // Показать прогресс-бар и изменить внешний вид кнопки
-            demoProgressContainer.style.display = 'block';
-            demoAnalyzeBtn.disabled = true;
-            demoAnalyzeBtn.classList.add('loading');
+            analysisProgressContainer.style.display = 'block';
+            analyzeBtn.disabled = true;
+            analyzeBtn.classList.add('loading');
             
             // Меняем иконку на спиннер при загрузке
-            demoAnalyzeBtn.querySelector('i').classList.remove('bi-lightning-charge');
-            demoAnalyzeBtn.querySelector('i').classList.add('bi-arrow-repeat');
+            analyzeBtn.querySelector('i').classList.remove('bi-lightning-charge');
+            analyzeBtn.querySelector('i').classList.add('bi-arrow-repeat');
             
             // Анимация прогресса с переменной скоростью
             let progress = 0;
@@ -418,7 +418,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     clearInterval(interval);
                 }
                 
-                demoProgressIndicator.style.width = `${progress}%`;
+                analysisProgressIndicator.style.width = `${progress}%`;
             }, 100);
             
             // Отправка данных на сервер
@@ -438,32 +438,32 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(data => {
                 // Завершаем прогресс-бар плавно до 100%
                 clearInterval(interval);
-                demoProgressIndicator.style.width = '100%';
+                analysisProgressIndicator.style.width = '100%';
                 
                 // Небольшая задержка перед скрытием прогресс-бара
                 setTimeout(() => {
-                    demoProgressContainer.style.display = 'none';
-                    demoProgressIndicator.style.width = '0%';
-                    demoAnalyzeBtn.classList.remove('loading');
+                    analysisProgressContainer.style.display = 'none';
+                    analysisProgressIndicator.style.width = '0%';
+                    analyzeBtn.classList.remove('loading');
                     
                     // Возвращаем оригинальную иконку
-                    demoAnalyzeBtn.querySelector('i').classList.remove('bi-arrow-repeat');
-                    demoAnalyzeBtn.querySelector('i').classList.add('bi-lightning-charge');
+                    analyzeBtn.querySelector('i').classList.remove('bi-arrow-repeat');
+                    analyzeBtn.querySelector('i').classList.add('bi-lightning-charge');
                     
                     // Добавляем эффект успешной отправки
-                    demoAnalyzeBtn.classList.add('success');
+                    analyzeBtn.classList.add('success');
                     setTimeout(() => {
-                        demoAnalyzeBtn.classList.remove('success');
+                        analyzeBtn.classList.remove('success');
                     }, 1000);
                     
                     // Отображение результатов
-                    displayDemoResults(data.tags);
+                    displayDescriptionResults(data.tags);
                     
                     // Показать секцию тегов
-                    demoTagsSection.style.display = 'block';
+                    tagsSection.style.display = 'block';
                     
                     // Разблокировка кнопки
-                    demoAnalyzeBtn.disabled = text.length === 0 || text.length > MAX_DEMO_CHARS;
+                    analyzeBtn.disabled = text.length === 0 || text.length > MAX_DESCRIPTION_CHARS;
                 }, 500);
             })
             .catch(error => {
@@ -471,34 +471,34 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Очистка прогресс-бара
                 clearInterval(interval);
-                demoProgressContainer.style.display = 'none';
-                demoProgressIndicator.style.width = '0%';
-                demoAnalyzeBtn.classList.remove('loading');
+                analysisProgressContainer.style.display = 'none';
+                analysisProgressIndicator.style.width = '0%';
+                analyzeBtn.classList.remove('loading');
                 
                 // Возвращаем оригинальную иконку
-                demoAnalyzeBtn.querySelector('i').classList.remove('bi-arrow-repeat');
-                demoAnalyzeBtn.querySelector('i').classList.add('bi-lightning-charge');
+                analyzeBtn.querySelector('i').classList.remove('bi-arrow-repeat');
+                analyzeBtn.querySelector('i').classList.add('bi-lightning-charge');
                 
                 // Показываем сообщение об ошибке под полем ввода
                 showNotification('Произошла ошибка при обработке запроса. Пожалуйста, попробуйте снова.', 'error');
                 
                 // Разблокировка кнопки
-                demoAnalyzeBtn.disabled = text.length === 0 || text.length > MAX_DEMO_CHARS;
+                analyzeBtn.disabled = text.length === 0 || text.length > MAX_DESCRIPTION_CHARS;
             });
         });
     }
     
-    // Функция для отображения результатов в демо-режиме
-    function displayDemoResults(data) {
-        demoTagsContainer.innerHTML = '';
-        demoSelectedTags.clear();
+    // Функция для отображения результатов в описании
+    function displayDescriptionResults(data) {
+        tagsContainer.innerHTML = '';
+        selectedTags.clear();
         
         // Если нет данных или объект пустой
         if (!data || Object.keys(data).length === 0) {
             const noResults = document.createElement('div');
             noResults.className = 'no-results';
             noResults.textContent = 'Не найдено подходящих тегов';
-            demoTagsContainer.appendChild(noResults);
+            tagsContainer.appendChild(noResults);
             return;
         }
         
@@ -528,7 +528,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (subcatTags && subcatTags.length > 0) {
                         subcatTags.forEach(tag => {
                             allTags.push({ tag, category });
-                            demoSelectedTags.add(tag);
+                            selectedTags.add(tag);
                         });
                     }
                 }
@@ -536,71 +536,58 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Категория с тегами без подкатегорий
                 data[category].forEach(tag => {
                     allTags.push({ tag, category });
-                    demoSelectedTags.add(tag);
+                    selectedTags.add(tag);
                 });
             }
         }
         
         // Отображаем теги
-        allTags.forEach(({ tag, category }) => createDemoTagElement(tag, category, categoryColors[category] || '#6366f1'));
+        allTags.forEach(({ tag, category }) => createDescriptionTagElement(tag, category, categoryColors[category] || '#6366f1'));
     }
     
-    // Функция для создания элемента тега в демо-режиме
-    function createDemoTagElement(tag, category, tagColor) {
+    // Функция для создания элемента тега в описании
+    function createDescriptionTagElement(tag, category, tagColor) {
         const tagElement = document.createElement('div');
         tagElement.className = 'tag';
-        tagElement.textContent = tag;
+        tagElement.dataset.tag = tag;
+        tagElement.style.backgroundColor = tagColor;
+        tagElement.style.color = 'white';
         
-        // Добавляем категорию в виде маленького текста
-        const categoryText = document.createElement('span');
-        categoryText.className = 'tag-category';
-        categoryText.textContent = category;
-        tagElement.appendChild(categoryText);
+        const tagText = document.createElement('span');
+        tagText.className = 'tag-text';
+        tagText.textContent = tag;
         
-        // Применяем цвет к тегу
-        tagElement.style.backgroundColor = `${tagColor}1A`; // 10% прозрачности
-        tagElement.style.color = tagColor;
-        tagElement.style.borderColor = `${tagColor}33`; // 20% прозрачности
-        
-        // Добавляем кнопку удаления
-        const removeBtn = document.createElement('span');
-        removeBtn.className = 'tag-remove';
-        removeBtn.innerHTML = '<i class="bi bi-x"></i>';
-        removeBtn.style.color = tagColor;
-        
-        // Обработчик удаления тега
+        const removeBtn = document.createElement('i');
+        removeBtn.className = 'bi bi-x-circle remove-tag';
         removeBtn.addEventListener('click', function(e) {
-            e.stopPropagation(); // Предотвращаем всплытие события
-            demoSelectedTags.delete(tag);
-            demoTagsContainer.removeChild(tagElement);
+            e.stopPropagation();
+            tagElement.remove();
+            selectedTags.delete(tag);
             
-            // Если все теги удалены, показываем сообщение
-            if (demoSelectedTags.size === 0) {
+            // Если больше нет тегов, показываем сообщение
+            if (tagsContainer.childElementCount === 0) {
                 const noResults = document.createElement('div');
                 noResults.className = 'no-results';
                 noResults.textContent = 'Не найдено подходящих тегов';
-                demoTagsContainer.appendChild(noResults);
+                tagsContainer.appendChild(noResults);
             }
         });
         
-        // При клике на тег копируем его
-        tagElement.addEventListener('click', function() {
-            copyToClipboard(tag);
-            showNotification('Тег скопирован в буфер обмена', 'info');
-        });
-        
+        tagElement.appendChild(tagText);
         tagElement.appendChild(removeBtn);
-        demoTagsContainer.appendChild(tagElement);
+        tagsContainer.appendChild(tagElement);
+        
+        return tagElement;
     }
     
-    // Обработка кнопки "Добавить тег" в демо-режиме
-    if (demoAddTagBtn) {
-        demoAddTagBtn.addEventListener('click', function() {
+    // Обработка кнопки "Добавить тег" в описании
+    if (addTagBtn) {
+        addTagBtn.addEventListener('click', function() {
             // Копируем текущие выбранные теги во временные
-            demoTempSelectedTags = new Set([...demoSelectedTags]);
+            tempSelectedTags = new Set([...selectedTags]);
             
             // Открываем модальное окно
-            demoTagsModalOverlay.classList.add('active');
+            tagsModalOverlay.classList.add('active');
             document.body.style.overflow = 'hidden'; // Блокируем прокрутку страницы
             
             // Загружаем все доступные теги из tags_data.py
@@ -613,11 +600,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 })
                 .then(data => {
                     // Заполняем меню с категориями
-                    populateDemoTagsCategoriesMenu(data.categories);
+                    populateDescriptionTagsCategoriesMenu(data.categories);
                     
                     // Фокус на поиск
                     setTimeout(() => {
-                        demoTagsSearch.focus();
+                        tagsSearch.focus();
                     }, 100);
                 })
                 .catch(error => {
@@ -627,9 +614,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Функция для отображения всех категорий и тегов в модальном окне демо-режима
-    function populateDemoTagsCategoriesMenu(categories) {
-        demoTagsMenuCategories.innerHTML = '';
+    // Функция для отображения всех категорий и тегов в модальном окне описания
+    function populateDescriptionTagsCategoriesMenu(categories) {
+        tagsMenuCategories.innerHTML = '';
         
         // Цвета для категорий
         const categoryColors = {
@@ -697,7 +684,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     tagItem.style.borderColor = `${categoryColor}33`; // 20% прозрачности
                     
                     // Если тег уже выбран, подсветим его
-                    if (demoSelectedTags.has(tag)) {
+                    if (selectedTags.has(tag)) {
                         tagItem.style.backgroundColor = categoryColor;
                         tagItem.style.color = 'white';
                     }
@@ -707,12 +694,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         const catColor = categoryColors[this.dataset.category] || defaultColors[colorIndex % defaultColors.length];
                         
                         // Переключаем состояние тега в временном наборе
-                        if (demoTempSelectedTags.has(tagValue)) {
-                            demoTempSelectedTags.delete(tagValue);
+                        if (tempSelectedTags.has(tagValue)) {
+                            tempSelectedTags.delete(tagValue);
                             this.style.backgroundColor = tagBgColor;
                             this.style.color = categoryColor;
                         } else {
-                            demoTempSelectedTags.add(tagValue);
+                            tempSelectedTags.add(tagValue);
                             this.style.backgroundColor = categoryColor;
                             this.style.color = 'white';
                         }
@@ -723,47 +710,47 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             categoryElement.appendChild(tagsList);
-            demoTagsMenuCategories.appendChild(categoryElement);
+            tagsMenuCategories.appendChild(categoryElement);
         }
     }
     
     // Закрытие модального окна тегов
-    function closeDemoTagsModal() {
-        demoTagsModalOverlay.classList.remove('active');
+    function closeDescriptionTagsModal() {
+        tagsModalOverlay.classList.remove('active');
         document.body.style.overflow = ''; // Разблокируем прокрутку страницы
     }
     
     // Обработчики для закрытия модального окна тегов
-    if (demoTagsMenuClose) {
-        demoTagsMenuClose.addEventListener('click', closeDemoTagsModal);
+    if (tagsMenuClose) {
+        tagsMenuClose.addEventListener('click', closeDescriptionTagsModal);
     }
     
-    if (demoTagsModalOverlay) {
-        demoTagsModalOverlay.addEventListener('click', function(e) {
+    if (tagsModalOverlay) {
+        tagsModalOverlay.addEventListener('click', function(e) {
             // Закрываем модальное окно при клике вне содержимого
-            if (e.target === demoTagsModalOverlay) {
-                closeDemoTagsModal();
+            if (e.target === tagsModalOverlay) {
+                closeDescriptionTagsModal();
             }
         });
     }
     
-    if (demoTagsMenuCancel) {
-        demoTagsMenuCancel.addEventListener('click', closeDemoTagsModal);
+    if (tagsMenuCancel) {
+        tagsMenuCancel.addEventListener('click', closeDescriptionTagsModal);
     }
     
     // Обработка кнопки применения выбранных тегов
-    if (demoTagsMenuApply) {
-        demoTagsMenuApply.addEventListener('click', function() {
+    if (tagsMenuApply) {
+        tagsMenuApply.addEventListener('click', function() {
             // Очищаем текущие теги
-            demoTagsContainer.innerHTML = '';
-            demoSelectedTags = new Set([...demoTempSelectedTags]);
+            tagsContainer.innerHTML = '';
+            selectedTags = new Set([...tempSelectedTags]);
             
             // Если теги не выбраны, показываем сообщение
-            if (demoSelectedTags.size === 0) {
+            if (selectedTags.size === 0) {
                 const noResults = document.createElement('div');
                 noResults.className = 'no-results';
                 noResults.textContent = 'Не найдено подходящих тегов';
-                demoTagsContainer.appendChild(noResults);
+                tagsContainer.appendChild(noResults);
             } else {
                 // Отображаем выбранные теги
                 // Получаем цвета категорий
@@ -781,34 +768,34 @@ document.addEventListener('DOMContentLoaded', function() {
                 };
                 
                 // Для каждого выбранного тега находим его категорию и отображаем
-                demoTempSelectedTags.forEach(tag => {
+                tempSelectedTags.forEach(tag => {
                     // Ищем категорию тега из элементов в модальном окне
-                    const tagItem = demoTagsMenuCategories.querySelector(`.tags-menu-item[data-tag="${tag}"]`);
+                    const tagItem = tagsMenuCategories.querySelector(`.tags-menu-item[data-tag="${tag}"]`);
                     if (tagItem) {
                         const category = tagItem.dataset.category;
                         const tagColor = categoryColors[category] || '#6366f1';
-                        createDemoTagElement(tag, category, tagColor);
+                        createDescriptionTagElement(tag, category, tagColor);
                     }
                 });
                 
                 // Показываем уведомление
-                if (demoSelectedTags.size === 1) {
+                if (selectedTags.size === 1) {
                     showNotification('Тег добавлен', 'success');
                 } else {
-                    showNotification(`Добавлено ${demoSelectedTags.size} тегов`, 'success');
+                    showNotification(`Добавлено ${selectedTags.size} тегов`, 'success');
                 }
             }
             
             // Закрываем модальное окно
-            closeDemoTagsModal();
+            closeDescriptionTagsModal();
         });
     }
     
     // Поиск по тегам в модальном окне
-    if (demoTagsSearch) {
-        demoTagsSearch.addEventListener('input', function() {
+    if (tagsSearch) {
+        tagsSearch.addEventListener('input', function() {
             const searchValue = this.value.toLowerCase();
-            const tagItems = demoTagsMenu.querySelectorAll('.tags-menu-item');
+            const tagItems = tagsMenu.querySelectorAll('.tags-menu-item');
             
             // Проверяем, что теги существуют
             if (!tagItems.length) return;
@@ -823,7 +810,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             
             // Скрываем категории без видимых тегов
-            const categories = demoTagsMenu.querySelectorAll('.tags-menu-category');
+            const categories = tagsMenu.querySelectorAll('.tags-menu-category');
             if (!categories.length) return;
             
             categories.forEach(category => {
@@ -838,8 +825,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Предотвращение закрытия при клике на содержимое модального окна
-    if (demoTagsMenu) {
-        demoTagsMenu.addEventListener('click', function(e) {
+    if (tagsMenu) {
+        tagsMenu.addEventListener('click', function(e) {
             e.stopPropagation();
         });
     }
