@@ -12,6 +12,8 @@ CREATE TABLE IF NOT EXISTS users (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   telegram_username TEXT NOT NULL UNIQUE,
   password TEXT NOT NULL,
+  about_me TEXT,
+  interests TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
   last_login TIMESTAMP WITH TIME ZONE
 );

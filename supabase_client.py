@@ -53,26 +53,52 @@ def verify_registration_request(telegram_username, verification_code):
     
     return False
 
-def register_user(telegram_username, password):
+def register_user(telegram_username, password, about_me=None, interests=None):
     """
-    Регистрирует пользователя в системе
+    Регистрирует нового пользователя
     """
-    # Удаляем символ @ из имени пользователя, если он есть
-    clean_username = telegram_username[1:] if telegram_username.startswith('@') else telegram_username
+    logger.debug(f"Регистрация пользователя {telegram_username}")
     
-    # Проверяем, существует ли уже этот пользователь
-    response = supabase.table('users').select('*').eq('telegram_username', clean_username).execute()
-    
-    if response.data:
-        return False, "Пользователь с таким именем уже зарегистрирован"
-    
-    # Создаем нового пользователя
-    result = supabase.table('users').insert({
-        'telegram_username': clean_username,
-        'password': password
-    }).execute()
-    
-    return True, "Регистрация успешно завершена"
+    try:
+        # Проверяем, существует ли уже этот пользователь
+        response = supabase.table('users').select('*').eq('telegram_username', telegram_username).execute()
+        
+        if response.data:
+            logger.warning(f"Попытка зарегистрировать существующего пользователя: {telegram_username}")
+            return False, "Пользователь с таким именем уже зарегистрирован"
+        
+        # Проверяем, есть ли запрос на регистрацию
+        reg_response = supabase.table('registration_requests').select('*').eq('telegram_username', telegram_username).execute()
+        
+        if not reg_response.data:
+            logger.warning(f"Попытка регистрации без предварительного запроса: {telegram_username}")
+            return False, "Запрос на регистрацию не найден. Пожалуйста, начните регистрацию заново"
+        
+        # Создаем нового пользователя
+        user_data = {
+            'telegram_username': telegram_username,
+            'password': password,
+            'created_at': 'now()',
+            'last_login': 'now()'
+        }
+        
+        # Добавляем дополнительные данные, если они предоставлены
+        if about_me:
+            user_data['about_me'] = about_me
+            
+        if interests:
+            user_data['interests'] = interests
+            
+        response = supabase.table('users').insert(user_data).execute()
+        
+        # Удаляем запрос на регистрацию
+        supabase.table('registration_requests').delete().eq('telegram_username', telegram_username).execute()
+        
+        logger.info(f"Пользователь {telegram_username} успешно зарегистрирован")
+        return True, "Пользователь успешно зарегистрирован"
+    except Exception as e:
+        logger.error(f"Ошибка при регистрации пользователя {telegram_username}: {str(e)}")
+        return False, "Произошла ошибка при регистрации. Пожалуйста, попробуйте позже."
 
 def validate_telegram_username(username):
     """

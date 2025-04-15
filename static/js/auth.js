@@ -30,8 +30,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const step3BackBtn = document.getElementById('step3BackBtn');
     const step3NextBtn = document.getElementById('step3NextBtn');
     
-    // Шаг 4: Успешная регистрация
+    // Шаг 4: О себе
     const step4 = document.getElementById('step4');
+    const aboutMe = document.getElementById('aboutMe');
+    const userInterests = document.getElementById('userInterests');
+    const step4BackBtn = document.getElementById('step4BackBtn');
+    const step4NextBtn = document.getElementById('step4NextBtn');
+    
+    // Шаг 5: Успешная регистрация
+    const step5 = document.getElementById('step5');
     const goToLoginBtn = document.getElementById('goToLoginBtn');
     
     // Прогресс и индикаторы
@@ -41,7 +48,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Хранение текущего пользователя Telegram
     let currentTelegramUsername = '';
     let registrationInProgress = false;
-    const totalSteps = 4;
+    const totalSteps = 5;
     let currentStep = 1;
     
     // Обработка Bootstrap модального окна
@@ -96,6 +103,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if (confirmationCode) confirmationCode.value = '';
         if (regPassword) regPassword.value = '';
         if (regPasswordConfirm) regPasswordConfirm.value = '';
+        if (aboutMe) aboutMe.value = '';
+        if (userInterests) userInterests.value = '';
         
         // Показываем только первый шаг
         registerSteps.forEach(step => step.classList.remove('active'));
@@ -110,7 +119,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         // Обновляем прогресс-бар
-        if (progressIndicator) progressIndicator.style.width = '25%';
+        if (progressIndicator) progressIndicator.style.width = '20%';
         if (currentStepNumber) currentStepNumber.textContent = '1';
         currentStep = 1;
         
@@ -303,7 +312,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             if (password.length < 8) {
-                showNotification('Пароль должен содержать минимум 8 символов', 'error');
+                showNotification('Пароль должен содержать не менее 8 символов', 'error');
                 return;
             }
             
@@ -312,50 +321,74 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             
-            step3NextBtn.disabled = true;
-            step3NextBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i> Отправка...';
+            // Проверяем надежность пароля
+            const strength = checkPasswordStrength(password);
+            if (strength < 2) { // Если пароль слабый
+                showNotification('Пожалуйста, используйте более надежный пароль', 'warning');
+                return;
+            }
             
-            // Отправка данных на сервер
+            // Переходим к шагу с информацией о себе
+            showStep(4);
+        });
+    }
+    
+    // Кнопка "Назад" для шага 4
+    if (step4BackBtn) {
+        step4BackBtn.addEventListener('click', function() {
+            showStep(3);
+        });
+    }
+    
+    // Кнопка "Далее" для шага 4
+    if (step4NextBtn) {
+        step4NextBtn.addEventListener('click', function() {
+            const bioText = aboutMe.value.trim();
+            const interests = userInterests.value.trim();
+            
+            step4NextBtn.disabled = true;
+            step4NextBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i> Сохранение...';
+            
+            // Отправляем данные регистрации на сервер
             fetch('/register/complete', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ 
+                body: JSON.stringify({
                     telegram_username: currentTelegramUsername,
-                    password: password
+                    password: regPassword.value,
+                    about_me: bioText,
+                    interests: interests
                 })
             })
             .then(response => response.json())
             .then(data => {
-                step3NextBtn.disabled = false;
-                step3NextBtn.innerHTML = '<span>Завершить</span><i class="bi bi-check2-all ms-2"></i>';
+                step4NextBtn.disabled = false;
+                step4NextBtn.innerHTML = '<span>Продолжить</span><i class="bi bi-arrow-right ms-2"></i>';
                 
                 if (data.success) {
-                    showStep(4);
-                    // Добавляем эффект конфетти
+                    // Показываем шаг успешной регистрации
+                    showStep(5);
                     startConfetti();
                 } else {
-                    showNotification(data.error || 'Ошибка при завершении регистрации', 'error');
+                    showNotification(data.error || 'Ошибка при регистрации', 'error');
                 }
             })
             .catch(error => {
                 console.error('Ошибка:', error);
-                step3NextBtn.disabled = false;
-                step3NextBtn.innerHTML = '<span>Завершить</span><i class="bi bi-check2-all ms-2"></i>';
+                step4NextBtn.disabled = false;
+                step4NextBtn.innerHTML = '<span>Продолжить</span><i class="bi bi-arrow-right ms-2"></i>';
                 showNotification('Произошла ошибка при регистрации', 'error');
             });
         });
     }
     
-    // Кнопка "Войти" после успешной регистрации
+    // Кнопка перехода к логину после успешной регистрации
     if (goToLoginBtn) {
         goToLoginBtn.addEventListener('click', function() {
-            // Активация таба входа
-            if (loginTab) {
-                loginTab.click();
-            }
             resetRegistrationForm();
+            loginTab.click();
         });
     }
     
@@ -472,6 +505,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         strengthText.textContent = message;
+        return strength;
     }
     
     // Функция для отображения уведомлений

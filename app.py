@@ -143,21 +143,42 @@ def register_complete():
     data = request.json
     telegram_username = data.get('telegram_username')
     password = data.get('password')
+    about_me = data.get('about_me', '')
+    interests = data.get('interests', '')
+    
+    logger.debug(f"Получен запрос на завершение регистрации для {telegram_username}")
     
     if not telegram_username or not password:
+        logger.warning("Отсутствуют обязательные поля для регистрации")
         return jsonify({'success': False, 'error': 'Пожалуйста, введите все необходимые данные'}), 400
     
     # Удаляем символ @ из имени пользователя, если он есть
     clean_username = telegram_username[1:] if telegram_username.startswith('@') else telegram_username
     
-    # Регистрируем пользователя
-    success, message = register_user(clean_username, password)
+    logger.debug(f"Регистрация пользователя с дополнительной информацией: {clean_username}")
+    
+    # Регистрируем пользователя с дополнительной информацией
+    success, message = register_user(
+        clean_username, 
+        password, 
+        about_me=about_me, 
+        interests=interests
+    )
     
     if success:
+        logger.info(f"Пользователь {clean_username} успешно зарегистрирован")
         # Авторизуем пользователя сразу после регистрации
         session['user'] = clean_username
-        return jsonify({'success': True, 'user': {'telegram_username': clean_username}})
+        return jsonify({
+            'success': True, 
+            'user': {
+                'telegram_username': clean_username,
+                'about_me': about_me,
+                'interests': interests
+            }
+        })
     
+    logger.warning(f"Ошибка при регистрации пользователя {clean_username}: {message}")
     return jsonify({'success': False, 'error': message}), 400
 
 @app.route('/logout', methods=['POST'])
