@@ -810,6 +810,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const searchValue = this.value.toLowerCase();
             const tagItems = demoTagsMenu.querySelectorAll('.tags-menu-item');
             
+            // Проверяем, что теги существуют
+            if (!tagItems.length) return;
+            
             tagItems.forEach(item => {
                 const tagText = item.textContent.toLowerCase();
                 if (tagText.includes(searchValue)) {
@@ -821,6 +824,8 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Скрываем категории без видимых тегов
             const categories = demoTagsMenu.querySelectorAll('.tags-menu-category');
+            if (!categories.length) return;
+            
             categories.forEach(category => {
                 const visibleTags = category.querySelectorAll('.tags-menu-item[style*="display: inline-flex"]');
                 if (visibleTags.length === 0) {
