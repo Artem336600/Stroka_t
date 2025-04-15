@@ -626,4 +626,348 @@
     .telegram-instructions-header h4 {
         font-size: 0.95rem;
     }
+}
+
+/* Стили для шага демонстрации анализа тегов */
+.demo-tags-section {
+    margin-top: 15px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    background-color: #f8f9fa;
+    padding: 12px;
+    transition: all 0.3s ease;
+}
+
+.demo-submit-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+    margin-bottom: 15px;
+}
+
+.demo-analyze-btn {
+    background-color: #4f46e5;
+    color: white;
+    font-weight: 500;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 20px;
+    transition: all 0.2s ease;
+}
+
+.demo-analyze-btn:hover {
+    background-color: #4338ca;
+    color: white;
+}
+
+.demo-analyze-btn:disabled {
+    background-color: #c7d2fe;
+    color: #4f46e5;
+    cursor: not-allowed;
+}
+
+.demo-analyze-btn.success {
+    background-color: #10b981;
+}
+
+.demo-analyze-btn.loading i {
+    animation: spin 1.5s linear infinite;
+}
+
+#demoCharCounter {
+    position: absolute;
+    right: 15px;
+    bottom: -20px;
+    font-size: 12px;
+    color: #6b7280;
+    transition: color 0.3s ease;
+}
+
+#demoCharCounter.warning {
+    color: #f59e0b;
+}
+
+#demoCharCounter.danger {
+    color: #ef4444;
+}
+
+.tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    border-radius: 30px;
+    font-size: 14px;
+    background-color: rgba(79, 70, 229, 0.1);
+    color: #4f46e5;
+    border: 1px solid rgba(79, 70, 229, 0.2);
+    position: relative;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.tag:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.tag-remove {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 6px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.tag-remove:hover {
+    background-color: rgba(239, 68, 68, 0.1);
+}
+
+.tag-category {
+    position: absolute;
+    bottom: -4px;
+    right: 10px;
+    font-size: 8px;
+    opacity: 0.6;
+    text-transform: uppercase;
+}
+
+.add-tag-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    background-color: transparent;
+    color: #4f46e5;
+    border: 1px dashed #4f46e5;
+    border-radius: 30px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.add-tag-btn:hover {
+    background-color: rgba(79, 70, 229, 0.05);
+}
+
+.results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.section-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0;
+}
+
+.progress-container {
+    margin: 15px 0;
+}
+
+.progress-bar {
+    height: 6px;
+    background-color: #e5e7eb;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.progress-indicator {
+    height: 100%;
+    background-color: #4f46e5;
+    border-radius: 3px;
+    width: 0;
+    transition: width 0.3s ease;
+}
+
+/* Анимация спиннера */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Стили для модального окна тегов */
+.tags-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1060;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.tags-modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.tags-menu {
+    background-color: white;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    transform: translateY(20px);
+    transition: transform 0.3s ease;
+    overflow: hidden;
+}
+
+.tags-modal-overlay.active .tags-menu {
+    transform: translateY(0);
+}
+
+.tags-menu-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.tags-menu-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.tags-menu-close {
+    cursor: pointer;
+    color: #6b7280;
+    font-size: 20px;
+    transition: color 0.2s ease;
+}
+
+.tags-menu-close:hover {
+    color: #ef4444;
+}
+
+.tags-menu-search {
+    padding: 12px 20px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.tags-menu-search input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.tags-menu-search input:focus {
+    outline: none;
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+}
+
+.tags-menu-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px 20px;
+}
+
+.tags-menu-categories {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.tags-menu-category-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #4f46e5;
+}
+
+.tags-menu-subcategory-title {
+    font-size: 14px;
+    font-weight: 500;
+    margin: 10px 0 6px;
+    padding-left: 8px;
+    border-left: 3px solid #4f46e5;
+    color: #4b5563;
+}
+
+.tags-menu-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 6px;
+}
+
+.tags-menu-item {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    border-radius: 30px;
+    font-size: 14px;
+    background-color: rgba(79, 70, 229, 0.1);
+    color: #4f46e5;
+    border: 1px solid rgba(79, 70, 229, 0.2);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.tags-menu-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.tags-menu-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding: 16px 20px;
+    border-top: 1px solid #e5e7eb;
+    gap: 12px;
+}
+
+.tags-menu-btn {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.tags-menu-cancel {
+    background-color: #f3f4f6;
+    color: #4b5563;
+    border: 1px solid #e5e7eb;
+}
+
+.tags-menu-cancel:hover {
+    background-color: #e5e7eb;
+}
+
+.tags-menu-apply {
+    background-color: #4f46e5;
+    color: white;
+    border: none;
+}
+
+.tags-menu-apply:hover {
+    background-color: #4338ca;
 } 

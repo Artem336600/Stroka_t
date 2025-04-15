@@ -50,7 +50,7 @@
                                 <div class="step-progress-indicator" id="progressIndicator"></div>
                             </div>
                             <div class="steps-counter">
-                                <span id="currentStepNumber">1</span> из <span id="totalSteps">5</span>
+                                <span id="currentStepNumber">1</span> из <span id="totalSteps">6</span>
                             </div>
                         </div>
 
@@ -73,6 +73,10 @@
                                 <div class="step-label">О себе</div>
                             </div>
                             <div class="step-dot" data-step="5">
+                                <div class="step-dot-inner"></div>
+                                <div class="step-label">Демо</div>
+                            </div>
+                            <div class="step-dot" data-step="6">
                                 <div class="step-dot-inner"></div>
                                 <div class="step-label">Готово</div>
                             </div>
@@ -209,8 +213,57 @@
                             </div>
                         </div>
 
-                        <!-- Шаг 5: Успешная регистрация -->
+                        <!-- Шаг 5: Демонстрация анализа тегов -->
                         <div class="register-step" id="step5">
+                            <h3 class="step-title">Демонстрация анализа текста</h3>
+                            <p class="step-description">Попробуйте работу сервиса прямо сейчас</p>
+                            
+                            <div class="form-group">
+                                <label for="demoText">Введите текст для анализа</label>
+                                <div class="input-icon-wrap">
+                                    <i class="bi bi-file-text input-icon"></i>
+                                    <textarea id="demoText" class="form-control" rows="3" placeholder="Опишите ваш проект или интересы для анализа..."></textarea>
+                                </div>
+                                <div id="demoCharCounter" class="char-counter">0/500</div>
+                            </div>
+                            
+                            <div class="demo-submit-container">
+                                <button id="demoAnalyzeBtn" class="btn demo-analyze-btn" disabled>
+                                    <span>Анализировать</span>
+                                    <i class="bi bi-lightning-charge ms-2"></i>
+                                </button>
+                            </div>
+                            
+                            <div id="demoProgressContainer" class="progress-container" style="display: none;">
+                                <div class="progress-bar">
+                                    <div id="demoProgressIndicator" class="progress-indicator"></div>
+                                </div>
+                            </div>
+                            
+                            <div id="demoTagsSection" style="display: none;" class="demo-tags-section">
+                                <div class="results-header">
+                                    <h4 class="section-title">Найденные теги</h4>
+                                    <button id="demoAddTagBtn" class="add-tag-btn" title="Добавить новый тег">
+                                        <i class="bi bi-plus-lg"></i>
+                                        Добавить тег
+                                    </button>
+                                </div>
+                                <div id="demoTagsContainer" class="tags-container"></div>
+                            </div>
+                            
+                            <div class="form-actions">
+                                <button type="button" id="step5BackBtn" class="btn auth-back-btn">
+                                    <i class="bi bi-arrow-left"></i>
+                                </button>
+                                <button type="button" id="step5NextBtn" class="btn auth-submit-btn">
+                                    <span>Завершить</span>
+                                    <i class="bi bi-check2-all ms-2"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Шаг 6: Успешная регистрация -->
+                        <div class="register-step" id="step6">
                             <div class="success-message">
                                 <div class="confetti"></div>
                                 <i class="bi bi-check-circle-fill"></i>
@@ -225,6 +278,31 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно с тегами для демо-режима -->
+<div id="demo-tags-modal-overlay" class="tags-modal-overlay">
+    <div id="demo-tags-menu" class="tags-menu">
+        <div class="tags-menu-header">
+            <div class="tags-menu-title">Выберите теги</div>
+            <i class="bi bi-x tags-menu-close" id="demo-tags-menu-close"></i>
+        </div>
+        
+        <div class="tags-menu-search">
+            <input type="text" id="demo-tags-search" placeholder="Поиск тегов...">
+        </div>
+        
+        <div class="tags-menu-content">
+            <div id="demo-tags-menu-categories" class="tags-menu-categories">
+                <!-- Категории тегов будут добавлены динамически -->
+            </div>
+        </div>
+        
+        <div class="tags-menu-footer">
+            <button id="demo-tags-menu-cancel" class="tags-menu-btn tags-menu-cancel">Отмена</button>
+            <button id="demo-tags-menu-apply" class="tags-menu-btn tags-menu-apply">Применить</button>
         </div>
     </div>
 </div> 
