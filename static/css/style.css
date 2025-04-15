@@ -627,82 +627,479 @@ body {
 }
 
 .auth-modal {
-    background: var(--input-bg);
-    border-radius: 1rem;
     width: 100%;
-    max-width: 400px;
-    box-shadow: var(--shadow-hover);
+    max-width: 480px;
     overflow: hidden;
-    transform: translateY(-20px);
-    opacity: 0;
-    transition: transform 0.3s ease, opacity 0.3s ease;
-}
-
-.auth-modal-overlay.active .auth-modal {
-    transform: translateY(0);
-    opacity: 1;
-}
-
-.auth-modal-header {
-    padding: 1rem;
-    border-bottom: 1px solid #e9ecef;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.auth-modal-title {
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: var(--text-color);
-}
-
-.auth-modal-close {
-    font-size: 1.5rem;
-    color: var(--text-secondary);
-    cursor: pointer;
-    transition: var(--transition);
-}
-
-.auth-modal-close:hover {
-    color: var(--text-color);
 }
 
 .auth-modal-content {
-    padding: 1.5rem;
+    padding: 1.5rem 2rem 2rem;
 }
 
-.auth-tabs {
-    display: flex;
+.registration-progress {
     margin-bottom: 1.5rem;
-    border-bottom: 1px solid #e9ecef;
 }
 
-.auth-tab {
-    flex: 1;
-    padding: 0.75rem;
-    text-align: center;
-    background: none;
-    border: none;
-    color: var(--text-secondary);
-    font-weight: 500;
-    cursor: pointer;
-    transition: var(--transition);
+.step-progress-bar {
+    height: 6px;
+    width: 100%;
+    background-color: #e5e7eb;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+}
+
+.step-progress-indicator {
+    height: 100%;
+    width: 25%; /* начальное значение, будет обновляться через JS */
+    background: linear-gradient(90deg, var(--accent-color) 0%, #4338ca 100%);
+    border-radius: 3px;
+    transition: width 0.5s ease;
+}
+
+.steps-counter {
+    font-size: 0.85rem;
+    color: #64748b;
+    text-align: right;
+}
+
+.step-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 1.5rem 0 2.5rem;
+    position: relative;
+    padding: 0 10px;
+}
+
+.step-indicator::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background-color: #e0e7ff;
+    z-index: 1;
+}
+
+.step-dot {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.step-dot-inner {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: #fff;
+    border: 1px solid #d1d5db;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
     position: relative;
 }
 
-.auth-tab.active {
-    color: var(--accent-color);
+.step-dot-inner::before {
+    content: '';
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #fff;
+    position: absolute;
 }
 
-.auth-tab.active::after {
-    content: '';
+.step-dot.active .step-dot-inner {
+    border-color: #6366f1;
+    background-color: #6366f1;
+}
+
+.step-dot.completed .step-dot-inner {
+    border-color: #16a34a;
+    background-color: #16a34a;
+}
+
+.step-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #9ca3af;
+    white-space: nowrap;
+}
+
+.step-dot.active .step-label {
+    color: #6366f1;
+    font-weight: 600;
+}
+
+.step-dot.completed .step-label {
+    color: #16a34a;
+    color: #10b981;
+    font-weight: 600;
+}
+
+.step-title {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 0.5rem;
+}
+
+.step-description {
+    color: #6b7280;
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+}
+
+.input-icon-wrap {
+    position: relative;
+}
+
+.input-icon {
     position: absolute;
-    bottom: -1px;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af;
+    font-size: 1.2rem;
+}
+
+.input-icon-wrap input {
+    padding-left: 40px !important;
+}
+
+.telegram-instructions {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    border-radius: 1rem;
+    padding: 0;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 8px rgba(12, 74, 110, 0.08);
+    overflow: hidden;
+}
+
+.telegram-instructions-header {
+    background-color: #0ea5e9;
+    color: white;
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.telegram-instructions-header i {
+    font-size: 1.5rem;
+}
+
+.telegram-instructions-header h4 {
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin: 0;
+}
+
+.telegram-instructions-content {
+    padding: 1.2rem 1.5rem;
+}
+
+.telegram-instructions-content p {
+    margin-bottom: 1rem;
+    color: #0c4a6e;
+}
+
+.telegram-instructions ol {
+    padding-left: 0;
+    margin-bottom: 1.5rem;
+    list-style: none;
+}
+
+.telegram-instructions li {
+    margin-bottom: 0.8rem;
+    padding-left: 2rem;
+    position: relative;
+    color: #0c4a6e;
+}
+
+.step-number {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 22px;
+    height: 22px;
+    background-color: #0ea5e9;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.telegram-instructions code {
+    background-color: rgba(14, 165, 233, 0.1);
+    padding: 0.2rem 0.4rem;
+    border-radius: 0.3rem;
+    font-family: monospace;
+    color: #0284c7;
+}
+
+.telegram-bot-link {
+    margin-top: 1rem;
+    text-align: center;
+}
+
+.telegram-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #0088cc;
+    color: white;
+    text-decoration: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 0.8rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(0, 136, 204, 0.2);
+    gap: 8px;
+    min-width: 180px;
+}
+
+.telegram-link:hover {
+    background-color: #0077b5;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0, 136, 204, 0.25);
+}
+
+.telegram-link:active {
+    transform: translateY(0);
+}
+
+.telegram-link i {
+    font-size: 1.3rem;
+}
+
+.password-strength {
+    margin-top: 6px;
+    padding: 0 2px;
+}
+
+.strength-bar {
+    height: 4px;
+    background-color: #ef4444;
+    width: 20%;
+    border-radius: 2px;
+    margin-bottom: 3px;
+    transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+.strength-bar.medium {
+    width: 50%;
+    background-color: #f59e0b;
+}
+
+.strength-bar.strong {
+    width: 100%;
+    background-color: #10b981;
+}
+
+.strength-text {
+    font-size: 0.75rem;
+    color: #ef4444;
+}
+
+.strength-text.medium {
+    color: #f59e0b;
+}
+
+.strength-text.strong {
+    color: #10b981;
+}
+
+.form-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.auth-back-btn {
+    flex: 0.4;
+    padding: 0.9rem 0;
+}
+
+.auth-submit-btn {
+    flex: 0.6;
+}
+
+.success-message {
+    text-align: center;
+    padding: 1.5rem 0.5rem 1rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.confetti {
+    position: absolute;
+    top: 0;
     left: 0;
     right: 0;
-    height: 2px;
-    background: var(--accent-color);
+    bottom: 0;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.success-message i {
+    position: relative;
+    z-index: 2;
+    font-size: 5rem;
+    margin-bottom: 1rem;
+    color: #10b981;
+    animation: success-pulse 1.5s ease infinite;
+}
+
+@keyframes success-pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.success-message h3 {
+    position: relative;
+    z-index: 2;
+    font-size: 1.6rem;
+    margin-bottom: 1rem;
+    color: #111827;
+}
+
+.success-message p {
+    position: relative;
+    z-index: 2;
+    color: #4b5563;
+    margin-bottom: 1.5rem;
+}
+
+/* Фикс для иконок в кнопках справа */
+.ms-2 {
+    margin-left: 0.5rem;
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 480px) {
+    .auth-modal-content {
+        padding: 1.2rem 1.2rem 1.5rem;
+    }
+    
+    .step-indicator {
+        margin-bottom: 1.5rem;
+    }
+    
+    .step-label {
+        font-size: 0.7rem;
+    }
+    
+    .step-title {
+        font-size: 1.2rem;
+    }
+    
+    .telegram-instructions-header {
+        padding: 0.8rem 1.2rem;
+    }
+    
+    .telegram-instructions-content {
+        padding: 1rem 1.2rem;
+    }
+}
+
+/* Стили для уведомлений */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 20px;
+    border-radius: 8px;
+    background: white;
+    color: #333;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    max-width: 350px;
+    transform: translateX(110%);
+    transition: transform 0.3s ease;
+    z-index: 9999;
+}
+
+.notification.show {
+    transform: translateX(0);
+}
+
+.notification i {
+    font-size: 1.2rem;
+}
+
+.notification span {
+    flex: 1;
+}
+
+.notification-close {
+    background: none;
+    border: none;
+    color: #777;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.notification-close:hover {
+    color: #333;
+}
+
+.notification.success {
+    border-left: 4px solid #10b981;
+}
+
+.notification.success i {
+    color: #10b981;
+}
+
+.notification.error {
+    border-left: 4px solid #ef4444;
+}
+
+.notification.error i {
+    color: #ef4444;
+}
+
+.notification.warning {
+    border-left: 4px solid #f59e0b;
+}
+
+.notification.warning i {
+    color: #f59e0b;
+}
+
+.notification.info {
+    border-left: 4px solid #3b82f6;
+}
+
+.notification.info i {
+    color: #3b82f6;
+}
+
+/* Дополнительные стили форм */
+.auth-tabs {
+    display: flex;
 }
 
 .auth-form {
@@ -713,51 +1110,35 @@ body {
     display: block;
 }
 
-.form-group {
-    margin-bottom: 1rem;
+.form-info {
+    font-size: 0.8rem;
+    color: #6b7280;
+    margin-top: 0.3rem;
 }
 
-.form-group label {
-    display: block;
-    margin-bottom: 0.5rem;
-    color: var(--text-color);
-    font-size: 0.9rem;
+/* Fix для иконок в кнопках */
+.me-2 {
+    margin-right: 0.5rem;
 }
 
-.form-group input {
-    width: 100%;
-    padding: 0.75rem;
-    border: 1px solid #e9ecef;
-    border-radius: 0.5rem;
-    font-size: 1rem;
-    transition: var(--transition);
+/* Анимация для кнопок при переходах */
+.auth-submit-btn, .auth-back-btn {
+    transition: all 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.form-group input:focus {
-    border-color: var(--accent-color);
-    outline: none;
-    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
+/* Улучшенная активная кнопка */
+.auth-submit-btn:active, .auth-back-btn:active {
+    transform: translateY(1px);
 }
 
-.auth-submit-btn {
-    width: 100%;
-    padding: 0.75rem;
-    background: var(--accent-color);
-    color: white;
-    border: none;
-    border-radius: 0.5rem;
-    font-size: 1rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: var(--transition);
-    margin-top: 1rem;
+/* Стиль для кнопки в состоянии disabled */
+.auth-submit-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    background: linear-gradient(135deg, #a5a6f6 0%, #7e77ca 100%);
 }
 
-.auth-submit-btn:hover {
-    background: var(--accent-hover);
-    transform: translateY(-1px);
-}
-
-.auth-submit-btn:active {
-    transform: translateY(0);
+/* Стили для текстовых полей с фокусом */
+.form-group input:focus::placeholder {
+    opacity: 0.5;
 } 

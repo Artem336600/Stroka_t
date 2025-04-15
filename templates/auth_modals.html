@@ -1,0 +1,195 @@
+<!-- Модальное окно авторизации/регистрации -->
+<div class="modal fade" id="authModal" tabindex="-1" aria-labelledby="authModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content auth-modal">
+            <div class="modal-header">
+                <h5 class="modal-title" id="authModalLabel">Вход в аккаунт</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <!-- Вкладки Вход/Регистрация -->
+                <ul class="nav nav-tabs auth-tabs nav-fill" id="authTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link auth-tab active" id="login-tab" data-bs-toggle="tab" data-bs-target="#loginForm" type="button" role="tab" aria-controls="loginForm" aria-selected="true">Вход</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link auth-tab" id="register-tab" data-bs-toggle="tab" data-bs-target="#registerForm" type="button" role="tab" aria-controls="registerForm" aria-selected="false">Регистрация</button>
+                    </li>
+                </ul>
+
+                <div class="tab-content" id="authTabsContent">
+                    <!-- Форма входа -->
+                    <div class="tab-pane fade show active auth-form" id="loginForm" role="tabpanel" aria-labelledby="login-tab">
+                        <div class="form-group">
+                            <label for="loginUsername">Telegram-имя пользователя</label>
+                            <div class="input-icon-wrap">
+                                <i class="bi bi-telegram input-icon"></i>
+                                <input type="text" id="loginUsername" class="form-control" placeholder="Введите @username (обязательно с @)">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="loginPassword">Пароль</label>
+                            <div class="input-icon-wrap">
+                                <i class="bi bi-lock input-icon"></i>
+                                <input type="password" id="loginPassword" class="form-control" placeholder="Введите ваш пароль">
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" id="loginBtn" class="btn auth-submit-btn w-100">
+                                <span>Войти</span>
+                                <i class="bi bi-box-arrow-in-right ms-2"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Многошаговая регистрация -->
+                    <div class="tab-pane fade auth-form" id="registerForm" role="tabpanel" aria-labelledby="register-tab">
+                        <!-- Прогресс регистрации -->
+                        <div class="registration-progress">
+                            <div class="step-progress-bar">
+                                <div class="step-progress-indicator" id="progressIndicator"></div>
+                            </div>
+                            <div class="steps-counter">
+                                <span id="currentStepNumber">1</span> из <span id="totalSteps">4</span>
+                            </div>
+                        </div>
+
+                        <!-- Индикатор шагов -->
+                        <div class="step-indicator">
+                            <div class="step-dot active" data-step="1">
+                                <div class="step-dot-inner"></div>
+                                <div class="step-label">Telegram</div>
+                            </div>
+                            <div class="step-dot" data-step="2">
+                                <div class="step-dot-inner"></div>
+                                <div class="step-label">Проверка</div>
+                            </div>
+                            <div class="step-dot" data-step="3">
+                                <div class="step-dot-inner"></div>
+                                <div class="step-label">Пароль</div>
+                            </div>
+                            <div class="step-dot" data-step="4">
+                                <div class="step-dot-inner"></div>
+                                <div class="step-label">Готово</div>
+                            </div>
+                        </div>
+
+                        <!-- Шаг 1: Ввод Telegram-имени -->
+                        <div class="register-step active" id="step1">
+                            <h3 class="step-title">Введите ваше Telegram-имя</h3>
+                            <p class="step-description">Мы свяжем ваш аккаунт с Telegram для безопасной регистрации</p>
+                            
+                            <div class="form-group">
+                                <label for="regUsername">Telegram-имя пользователя</label>
+                                <div class="input-icon-wrap">
+                                    <i class="bi bi-telegram input-icon"></i>
+                                    <input type="text" id="regUsername" class="form-control" placeholder="Введите @username (обязательно с @)">
+                                </div>
+                                <small class="form-text text-muted">Введите ваше имя пользователя в Telegram, обязательно с символом @</small>
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" id="step1NextBtn" class="btn auth-submit-btn w-100">
+                                    <span>Продолжить</span>
+                                    <i class="bi bi-arrow-right ms-2"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Шаг 2: Подтверждение через Телеграм -->
+                        <div class="register-step" id="step2">
+                            <h3 class="step-title">Подтверждение в Telegram</h3>
+                            <p class="step-description">Получите код подтверждения через нашего Telegram-бота</p>
+                            
+                            <div class="telegram-instructions">
+                                <div class="telegram-instructions-header">
+                                    <i class="bi bi-telegram"></i>
+                                    <h4>Как подтвердить регистрацию</h4>
+                                </div>
+                                <div class="telegram-instructions-content">
+                                    <p>Выполните следующие шаги для подтверждения вашей регистрации:</p>
+                                    <ol>
+                                        <li><span class="step-number">1</span> Перейдите к нашему боту в Telegram</li>
+                                        <li><span class="step-number">2</span> Отправьте боту команду <code>/start</code></li>
+                                        <li><span class="step-number">3</span> Получите код подтверждения и введите его ниже</li>
+                                    </ol>
+                                    
+                                    <div class="telegram-bot-link">
+                                        <a href="https://t.me/TREOSCOMPANY_bot" target="_blank" class="telegram-link">
+                                            <i class="bi bi-telegram"></i>
+                                            <span>Открыть Telegram-бот</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="confirmationCode">Код подтверждения</label>
+                                <div class="input-icon-wrap">
+                                    <i class="bi bi-shield-check input-icon"></i>
+                                    <input type="text" id="confirmationCode" class="form-control" placeholder="Введите 6-значный код">
+                                </div>
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" id="step2BackBtn" class="btn auth-back-btn">
+                                    <i class="bi bi-arrow-left"></i>
+                                </button>
+                                <button type="button" id="step2NextBtn" class="btn auth-submit-btn">
+                                    <span>Подтвердить</span>
+                                    <i class="bi bi-check-lg ms-2"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Шаг 3: Создание пароля -->
+                        <div class="register-step" id="step3">
+                            <h3 class="step-title">Создайте пароль</h3>
+                            <p class="step-description">Придумайте надежный пароль для вашего аккаунта</p>
+                            
+                            <div class="form-group">
+                                <label for="regPassword">Пароль</label>
+                                <div class="input-icon-wrap">
+                                    <i class="bi bi-lock input-icon"></i>
+                                    <input type="password" id="regPassword" class="form-control" placeholder="Минимум 8 символов">
+                                </div>
+                                <div class="password-strength">
+                                    <div class="strength-bar" id="passwordStrengthBar"></div>
+                                    <div class="strength-text" id="passwordStrengthText">Слабый пароль</div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="regPasswordConfirm">Подтвердите пароль</label>
+                                <div class="input-icon-wrap">
+                                    <i class="bi bi-lock-check input-icon"></i>
+                                    <input type="password" id="regPasswordConfirm" class="form-control" placeholder="Повторите пароль">
+                                </div>
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" id="step3BackBtn" class="btn auth-back-btn">
+                                    <i class="bi bi-arrow-left"></i>
+                                </button>
+                                <button type="button" id="step3NextBtn" class="btn auth-submit-btn">
+                                    <span>Завершить</span>
+                                    <i class="bi bi-check2-all ms-2"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Шаг 4: Успешная регистрация -->
+                        <div class="register-step" id="step4">
+                            <div class="success-message">
+                                <div class="confetti"></div>
+                                <i class="bi bi-check-circle-fill"></i>
+                                <h3>Регистрация успешна!</h3>
+                                <p>Ваш аккаунт успешно создан. Теперь вы можете войти в систему, используя свои данные.</p>
+                                <button type="button" id="goToLoginBtn" class="btn auth-submit-btn">
+                                    <span>Войти в аккаунт</span>
+                                    <i class="bi bi-box-arrow-in-right ms-2"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

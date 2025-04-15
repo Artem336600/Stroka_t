@@ -1,2 +1,4 @@
 flask==2.3.3
-openai==1.13.3 
+openai==1.13.3
+supabase==2.6.0
+python-telegram-bot==20.6 
