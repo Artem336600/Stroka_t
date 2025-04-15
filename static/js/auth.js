@@ -30,15 +30,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const step3BackBtn = document.getElementById('step3BackBtn');
     const step3NextBtn = document.getElementById('step3NextBtn');
     
-    // Шаг 4: О себе
+    // Шаг 4: Демонстрация анализа тегов
     const step4 = document.getElementById('step4');
-    const aboutMe = document.getElementById('aboutMe');
-    const userInterests = document.getElementById('userInterests');
-    const step4BackBtn = document.getElementById('step4BackBtn');
-    const step4NextBtn = document.getElementById('step4NextBtn');
-    
-    // Шаг 5: Демонстрация анализа тегов
-    const step5 = document.getElementById('step5');
     const demoText = document.getElementById('demoText');
     const demoCharCounter = document.getElementById('demoCharCounter');
     const demoAnalyzeBtn = document.getElementById('demoAnalyzeBtn');
@@ -47,8 +40,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const demoTagsSection = document.getElementById('demoTagsSection');
     const demoTagsContainer = document.getElementById('demoTagsContainer');
     const demoAddTagBtn = document.getElementById('demoAddTagBtn');
-    const step5BackBtn = document.getElementById('step5BackBtn');
-    const step5NextBtn = document.getElementById('step5NextBtn');
+    const step4BackBtn = document.getElementById('step4BackBtn');
+    const step4NextBtn = document.getElementById('step4NextBtn');
     
     // Элементы модального окна с тегами
     const demoTagsModalOverlay = document.getElementById('demo-tags-modal-overlay');
@@ -59,8 +52,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const demoTagsSearch = document.getElementById('demo-tags-search');
     const demoTagsMenuCategories = document.getElementById('demo-tags-menu-categories');
     
-    // Шаг 6: Успешная регистрация
-    const step6 = document.getElementById('step6');
+    // Шаг 5: Успешная регистрация
+    const step5 = document.getElementById('step5');
     const goToLoginBtn = document.getElementById('goToLoginBtn');
     
     // Прогресс и индикаторы
@@ -70,7 +63,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Хранение текущего пользователя Telegram
     let currentTelegramUsername = '';
     let registrationInProgress = false;
-    const totalSteps = 6;
+    const totalSteps = 5;
     let currentStep = 1;
     
     // Хранение тегов для демо-режима
@@ -130,8 +123,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (confirmationCode) confirmationCode.value = '';
         if (regPassword) regPassword.value = '';
         if (regPasswordConfirm) regPasswordConfirm.value = '';
-        if (aboutMe) aboutMe.value = '';
-        if (userInterests) userInterests.value = '';
         if (demoText) demoText.value = '';
         if (demoCharCounter) demoCharCounter.textContent = '0/500';
         
@@ -369,31 +360,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Обработка ввода текста в шаге 4
-    if (aboutMe) {
-        // Можно добавить обработчики для валидации полей ввода о себе при необходимости
-    }
-    
-    // Обработка шага 4 - О себе
-    if (step4NextBtn) {
-        step4NextBtn.addEventListener('click', function() {
-            const bioText = aboutMe.value.trim();
-            const interests = userInterests.value.trim();
-            
-            // Здесь можно добавить валидацию при необходимости
-            
-            // Переход на следующий шаг - демонстрация
-            showStep(5);
-        });
-    }
-    
-    if (step4BackBtn) {
-        step4BackBtn.addEventListener('click', function() {
-            showStep(3);
-        });
-    }
-    
-    // Обработка шага 5 - Демонстрация анализа тегов
+    // Обработка шага 4 - Демонстрация анализа тегов
     
     // Отслеживание ввода текста в демо-поле
     if (demoText) {
@@ -872,9 +839,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Обработка кнопок навигации шага 5
-    if (step5NextBtn) {
-        step5NextBtn.addEventListener('click', function() {
+    // Обработка кнопок навигации шага 4
+    if (step4NextBtn) {
+        step4NextBtn.addEventListener('click', function() {
             // Отправляем данные регистрации на сервер
             fetch('/register/complete', {
                 method: 'POST',
@@ -883,16 +850,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 body: JSON.stringify({
                     telegram_username: currentTelegramUsername,
-                    password: regPassword.value,
-                    about_me: aboutMe.value.trim(),
-                    interests: userInterests.value.trim()
+                    password: regPassword.value
                 })
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
                     // Показываем шаг успешной регистрации
-                    showStep(6);
+                    showStep(5);
                     startConfetti();
                 } else {
                     showNotification(data.error || 'Ошибка при регистрации', 'error');
@@ -905,9 +870,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    if (step5BackBtn) {
-        step5BackBtn.addEventListener('click', function() {
-            showStep(4);
+    if (step4BackBtn) {
+        step4BackBtn.addEventListener('click', function() {
+            showStep(3);
         });
     }
     
@@ -948,7 +913,6 @@ document.addEventListener('DOMContentLoaded', function() {
             case 3: targetStep = step3; break;
             case 4: targetStep = step4; break;
             case 5: targetStep = step5; break;
-            case 6: targetStep = step6; break;
             default: targetStep = step1;
         }
         

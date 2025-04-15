@@ -143,8 +143,6 @@ def register_complete():
     data = request.json
     telegram_username = data.get('telegram_username')
     password = data.get('password')
-    about_me = data.get('about_me', '')
-    interests = data.get('interests', '')
     
     logger.debug(f"Получен запрос на завершение регистрации для {telegram_username}")
     
@@ -155,14 +153,12 @@ def register_complete():
     # Удаляем символ @ из имени пользователя, если он есть
     clean_username = telegram_username[1:] if telegram_username.startswith('@') else telegram_username
     
-    logger.debug(f"Регистрация пользователя с дополнительной информацией: {clean_username}")
+    logger.debug(f"Регистрация пользователя: {clean_username}")
     
-    # Регистрируем пользователя с дополнительной информацией
+    # Регистрируем пользователя
     success, message = register_user(
         clean_username, 
-        password, 
-        about_me=about_me, 
-        interests=interests
+        password
     )
     
     if success:
@@ -172,9 +168,7 @@ def register_complete():
         return jsonify({
             'success': True, 
             'user': {
-                'telegram_username': clean_username,
-                'about_me': about_me,
-                'interests': interests
+                'telegram_username': clean_username
             }
         })
     
