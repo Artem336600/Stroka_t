@@ -382,46 +382,38 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Получаем все доступные теги с сервера
     function fetchAllTags() {
-        console.log('Загрузка тегов с сервера...');
+        console.log('Загрузка всех доступных тегов...');
+        
         return fetch('/get_all_tags')
             .then(response => {
                 if (!response.ok) {
-                    throw new Error('Ошибка при загрузке тегов: ' + response.status);
+                    throw new Error('Ошибка при загрузке тегов');
                 }
                 return response.json();
             })
             .then(data => {
-                console.log('Теги успешно загружены:', data);
+                console.log('Получены теги с сервера');
+                
                 if (data.categories) {
                     allAvailableTags = data.categories;
                     
-                    // Заполняем маппинги тегов и категорий
+                    // Заполняем маппинг тегов к категориям
                     for (const category in allAvailableTags) {
-                        const categoryColor = window.categoryToColorMap[category] || '#6366f1';
-                        
-                        if (typeof allAvailableTags[category] === 'object' && !Array.isArray(allAvailableTags[category])) {
-                            // Категория с подкатегориями
-                            for (const subcategory in allAvailableTags[category]) {
-                                const subcatTags = allAvailableTags[category][subcategory];
-                                if (subcatTags && subcatTags.length > 0) {
-                                    subcatTags.forEach(tag => {
-                                        window.tagsToCategoryMap[tag] = category;
-                                    });
-                                }
-                            }
-                        } else if (Array.isArray(allAvailableTags[category])) {
-                            // Категория с тегами без подкатегорий
-                            allAvailableTags[category].forEach(tag => {
+                        // Обрабатываем теги с подкатегориями
+                        for (const subcategory in allAvailableTags[category]) {
+                            allAvailableTags[category][subcategory].forEach(tag => {
                                 window.tagsToCategoryMap[tag] = category;
                             });
                         }
                     }
-                    return data.categories;
+                    
+                    console.log('Маппинг тегов к категориям создан');
+                    logTagsStatistics();
+                    
+                    return allAvailableTags;
                 }
-                return {};
-            })
-            .catch(error => {
-                console.error('Ошибка при получении тегов:', error);
+                
+                console.error('Неожиданный формат ответа от сервера:', data);
                 return {};
             });
     }
@@ -431,28 +423,44 @@ document.addEventListener('DOMContentLoaded', function() {
         // Сначала очищаем контейнер
         if (!tagsContainer) return;
         
-        // Получаем все теги из DOM
-        const tagElements = tagsContainer.querySelectorAll('.tag');
-        tagElements.forEach(tag => {
-            const tagText = tag.querySelector('.tag-text').textContent.trim();
-            userTags.add(tagText);
-            
-            // Добавляем обработчик для удаления тега
-            const removeBtn = tag.querySelector('.remove-tag');
-            if (removeBtn) {
-                removeBtn.addEventListener('click', function() {
-                    userTags.delete(tagText);
-                    tag.remove();
-                    
-                    // Проверяем, остались ли теги
-                    if (userTags.size === 0) {
-                        const noTags = document.createElement('div');
-                        noTags.className = 'no-tags';
-                        noTags.textContent = 'Пока нет добавленных тегов';
-                        tagsContainer.appendChild(noTags);
-                    }
-                });
-            }
+        console.log('Инициализация тегов пользователя...');
+        
+        // Загрузим все теги для определения категорий
+        fetchAllTags().then(() => {
+            // Получаем все теги из DOM
+            const tagElements = tagsContainer.querySelectorAll('.tag');
+            tagElements.forEach(tag => {
+                const tagText = tag.querySelector('.tag-text').textContent.trim();
+                userTags.add(tagText);
+                
+                // Определяем категорию тега и его цвет
+                const category = window.tagsToCategoryMap[tagText];
+                const tagColor = window.categoryToColorMap[category] || '#6366f1';
+                
+                // Устанавливаем цвет тега в соответствии с категорией
+                tag.style.backgroundColor = tagColor;
+                tag.style.color = 'white';
+                tag.style.borderColor = tagColor;
+                
+                console.log(`Тег "${tagText}" (категория: ${category || 'неизвестно'}) установлен с цветом ${tagColor}`);
+                
+                // Добавляем обработчик для удаления тега
+                const removeBtn = tag.querySelector('.remove-tag');
+                if (removeBtn) {
+                    removeBtn.addEventListener('click', function() {
+                        userTags.delete(tagText);
+                        tag.remove();
+                        
+                        // Проверяем, остались ли теги
+                        if (userTags.size === 0) {
+                            const noTags = document.createElement('div');
+                            noTags.className = 'no-tags';
+                            noTags.textContent = 'Пока нет добавленных тегов';
+                            tagsContainer.appendChild(noTags);
+                        }
+                    });
+                }
+            });
         });
     }
     
@@ -529,6 +537,10 @@ document.addEventListener('DOMContentLoaded', function() {
     function createTagElement(tag, tagColor) {
         const tagElement = document.createElement('div');
         tagElement.className = 'tag';
+        
+        // Запоминаем категорию тега
+        const category = window.tagsToCategoryMap[tag];
+        console.log(`Создание тега "${tag}" (категория: ${category || 'неизвестно'}) с цветом ${tagColor}`);
         
         // Устанавливаем цвет тега
         tagElement.style.backgroundColor = tagColor;
