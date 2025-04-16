@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const tagsMenuApply = document.getElementById('tags-menu-apply');
     const tagsSearch = document.getElementById('tags-search');
     const tagsMenuCategories = document.getElementById('tags-menu-categories');
+    const usersContainer = document.getElementById('users-container');
     const MAX_CHARS = 1000;
     
     // Хранение существующих тегов и выбранных тегов
@@ -37,8 +38,8 @@ document.addEventListener('DOMContentLoaded', function() {
         'Путешествия и туризм': '#f97316'
     };
     
-    // Удаляем обработчики, которые конфликтуют с Bootstrap Modal
-    // Теперь модальное окно управляется через Bootstrap
+    // Загружаем пользователей при загрузке страницы
+    loadUsers();
     
     // Обработка ввода текста и обновление счетчика
     textarea.addEventListener('input', function() {
@@ -153,6 +154,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     resultsSection.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
                     resultsSection.style.opacity = '1';
                     resultsSection.style.transform = 'translateY(0)';
+                    
+                    // После отображения тегов загружаем пользователей с теми же тегами
+                    loadUsersByTags([...selectedTags]);
                 }, 50);
                 
                 // Разблокировка кнопки
@@ -298,6 +302,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 noResults.textContent = 'Не найдено подходящих тегов';
                 resultsContainer.appendChild(noResults);
             }
+            
+            // Обновляем список пользователей при удалении тега
+            loadUsersByTags([...selectedTags]);
         });
         
         // При клике на тег - копируем его
@@ -728,6 +735,9 @@ document.addEventListener('DOMContentLoaded', function() {
             selectedTags.forEach(tag => createTagElement(tag));
         }
         
+        // Обновляем список пользователей в соответствии с новыми тегами
+        loadUsersByTags([...selectedTags]);
+        
         // Закрываем модальное окно
         closeModal();
     });
@@ -773,4 +783,368 @@ document.addEventListener('DOMContentLoaded', function() {
             closeModal();
         }
     });
+
+    // Функция для загрузки пользователей
+    function loadUsers() {
+        fetch('/get_users')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Ошибка при получении данных пользователей');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success && data.users && data.users.length > 0) {
+                    displayUsers(data.users);
+                } else {
+                    usersContainer.innerHTML = `
+                        <div class="no-users">
+                            <p>Нет зарегистрированных пользователей</p>
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+                usersContainer.innerHTML = `
+                    <div class="no-users">
+                        <p>Не удалось загрузить данные пользователей</p>
+                    </div>
+                `;
+            });
+    }
+    
+    // Функция для отображения пользователей
+    function displayUsers(users) {
+        usersContainer.innerHTML = '';
+        
+        // Перебираем всех пользователей и создаем карточки
+        users.forEach(user => {
+            // Создаем элемент карточки пользователя
+            const userCard = document.createElement('div');
+            userCard.className = 'user-card';
+            
+            // Получаем инициалы для аватара
+            const initials = getInitials(user.first_name, user.last_name);
+            
+            // Получаем иконку для роли пользователя
+            const roleIcon = getRoleIcon(user.user_role);
+            
+            // Преобразуем роль пользователя для отображения
+            const roleName = getRoleName(user.user_role);
+            
+            // Создаем HTML содержимое карточки
+            userCard.innerHTML = `
+                <div class="user-card-header">
+                    <div class="user-avatar">${initials}</div>
+                    <div class="user-info">
+                        <div class="user-name">${user.last_name} ${user.first_name} ${user.middle_name || ''}</div>
+                        <div class="user-role">
+                            <i class="bi ${roleIcon}"></i>
+                            ${roleName}
+                        </div>
+                    </div>
+                </div>
+                <div class="user-details">
+                    ${user.age ? `
+                        <div class="user-detail">
+                            <i class="bi bi-calendar3"></i>
+                            <div class="user-detail-content">
+                                <div class="user-detail-label">Возраст</div>
+                                <div class="user-detail-value">${user.age} лет</div>
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    ${user.university ? `
+                        <div class="user-detail">
+                            <i class="bi bi-mortarboard-fill"></i>
+                            <div class="user-detail-content">
+                                <div class="user-detail-label">Университет</div>
+                                <div class="user-detail-value">${user.university}</div>
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    ${user.faculty ? `
+                        <div class="user-detail">
+                            <i class="bi bi-book"></i>
+                            <div class="user-detail-content">
+                                <div class="user-detail-label">Факультет</div>
+                                <div class="user-detail-value">${user.faculty}</div>
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    ${user.course ? `
+                        <div class="user-detail">
+                            <i class="bi bi-123"></i>
+                            <div class="user-detail-content">
+                                <div class="user-detail-label">Курс</div>
+                                <div class="user-detail-value">${user.course}</div>
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    ${user.workplace ? `
+                        <div class="user-detail">
+                            <i class="bi bi-building"></i>
+                            <div class="user-detail-content">
+                                <div class="user-detail-label">Место работы</div>
+                                <div class="user-detail-value">${user.workplace}</div>
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+                
+                ${user.about_me ? `
+                    <div class="user-about">
+                        <div class="user-about-label">О себе</div>
+                        <div class="user-about-text">${user.about_me}</div>
+                    </div>
+                ` : ''}
+                
+                <div class="user-tags">
+                    ${renderUserTags(user.tags)}
+                </div>
+                
+                <button class="user-contact-btn" data-user-id="${user.id}">
+                    <i class="bi bi-send"></i>
+                    Отправить заявку на общение
+                </button>
+            `;
+            
+            // Добавляем карточку в контейнер
+            usersContainer.appendChild(userCard);
+            
+            // Добавляем обработчик для кнопки "Отправить заявку на общение"
+            const contactBtn = userCard.querySelector('.user-contact-btn');
+            contactBtn.addEventListener('click', function() {
+                const userId = this.getAttribute('data-user-id');
+                sendContactRequest(userId, user.last_name, user.first_name);
+            });
+        });
+    }
+    
+    // Функция для отправки заявки на общение
+    function sendContactRequest(userId, lastName, firstName) {
+        // Проверяем, авторизован ли пользователь
+        fetch('/check_auth')
+            .then(response => response.json())
+            .then(data => {
+                if (data.authenticated) {
+                    // Показываем уведомление об успешной отправке заявки
+                    showNotification('success', `Заявка на общение с ${lastName} ${firstName} успешно отправлена!`);
+                    
+                    // Здесь можно добавить логику для отправки заявки на сервер
+                    // fetch('/send_contact_request', {
+                    //     method: 'POST',
+                    //     headers: {
+                    //         'Content-Type': 'application/json',
+                    //     },
+                    //     body: JSON.stringify({ user_id: userId })
+                    // })
+                } else {
+                    // Показываем уведомление с предложением авторизоваться
+                    showNotification('warning', 'Для отправки заявки необходимо авторизоваться');
+                    
+                    // Открываем модальное окно входа
+                    document.getElementById('loginModal').classList.add('active');
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+                showNotification('error', 'Произошла ошибка при обработке запроса');
+            });
+    }
+    
+    // Функция для отображения уведомлений
+    function showNotification(type, message) {
+        // Удаляем предыдущие уведомления
+        const existingNotifications = document.querySelectorAll('.notification');
+        existingNotifications.forEach(notification => {
+            document.body.removeChild(notification);
+        });
+        
+        // Создаем новое уведомление
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        
+        // Устанавливаем иконку в зависимости от типа уведомления
+        let icon = '';
+        switch (type) {
+            case 'success':
+                icon = 'bi-check-circle-fill';
+                break;
+            case 'error':
+                icon = 'bi-exclamation-circle-fill';
+                break;
+            case 'warning':
+                icon = 'bi-exclamation-triangle-fill';
+                break;
+            default:
+                icon = 'bi-info-circle-fill';
+        }
+        
+        notification.innerHTML = `
+            <i class="bi ${icon}"></i>
+            <span>${message}</span>
+            <button class="notification-close">
+                <i class="bi bi-x"></i>
+            </button>
+        `;
+        
+        // Добавляем уведомление на страницу
+        document.body.appendChild(notification);
+        
+        // Показываем уведомление
+        setTimeout(() => {
+            notification.classList.add('show');
+        }, 10);
+        
+        // Добавляем обработчик для закрытия уведомления
+        const closeButton = notification.querySelector('.notification-close');
+        closeButton.addEventListener('click', () => {
+            notification.classList.remove('show');
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 300);
+        });
+        
+        // Автоматически скрываем уведомление через 5 секунд
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    document.body.removeChild(notification);
+                }
+            }, 300);
+        }, 5000);
+    }
+    
+    // Функция для получения инициалов из имени и фамилии
+    function getInitials(firstName, lastName) {
+        let initials = '';
+        
+        if (firstName && firstName.length > 0) {
+            initials += firstName[0].toUpperCase();
+        }
+        
+        if (lastName && lastName.length > 0) {
+            initials += lastName[0].toUpperCase();
+        }
+        
+        return initials || '?';
+    }
+    
+    // Функция для получения иконки в зависимости от роли пользователя
+    function getRoleIcon(role) {
+        switch (role) {
+            case 'student':
+                return 'bi-mortarboard';
+            case 'teacher':
+                return 'bi-person-workspace';
+            case 'employer':
+                return 'bi-briefcase';
+            default:
+                return 'bi-person';
+        }
+    }
+    
+    // Функция для преобразования роли в читаемый вид
+    function getRoleName(role) {
+        switch (role) {
+            case 'student':
+                return 'Студент';
+            case 'teacher':
+                return 'Преподаватель';
+            case 'employer':
+                return 'Работодатель';
+            default:
+                return 'Пользователь';
+        }
+    }
+    
+    // Функция для отображения тегов пользователя
+    function renderUserTags(tags) {
+        if (!tags || tags.length === 0) {
+            return 'Нет тегов';
+        }
+        
+        // Ограничиваем количество отображаемых тегов до 10
+        const maxTagsToShow = 10;
+        const visibleTags = tags.slice(0, maxTagsToShow);
+        const remainingTags = tags.length > maxTagsToShow ? tags.length - maxTagsToShow : 0;
+        
+        let tagsHtml = visibleTags.map(tag => {
+            // Если tag это строка, используем её непосредственно
+            const tagText = typeof tag === 'string' ? tag : tag.text || tag.name || '';
+            return `<div class="user-tag">${tagText}</div>`;
+        }).join('');
+        
+        // Добавляем индикатор оставшихся тегов
+        if (remainingTags > 0) {
+            tagsHtml += `<div class="user-tag">+${remainingTags}</div>`;
+        }
+        
+        return tagsHtml;
+    }
+
+    // Функция для загрузки пользователей с совпадающими тегами
+    function loadUsersByTags(tags) {
+        // Показываем секцию пользователей
+        document.getElementById('users-section').style.display = 'block';
+        
+        // Показываем индикатор загрузки в контейнере пользователей
+        usersContainer.innerHTML = `
+            <div class="loading-spinner">
+                <i class="bi bi-arrow-repeat"></i>
+                <span>Поиск пользователей с похожими тегами...</span>
+            </div>
+        `;
+        
+        // Если нет тегов, показываем сообщение
+        if (!tags || tags.length === 0) {
+            usersContainer.innerHTML = `
+                <div class="no-users">
+                    <p>Нет тегов для поиска пользователей</p>
+                </div>
+            `;
+            return;
+        }
+        
+        // Отправляем запрос на сервер для получения пользователей по тегам
+        fetch('/get_users_by_tags', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ tags: tags })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Ошибка при получении данных пользователей');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success && data.users && data.users.length > 0) {
+                displayUsers(data.users);
+            } else {
+                usersContainer.innerHTML = `
+                    <div class="no-users">
+                        <p>Не найдено пользователей с такими тегами</p>
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка:', error);
+            usersContainer.innerHTML = `
+                <div class="no-users">
+                    <p>Не удалось загрузить данные пользователей</p>
+                </div>
+            `;
+        });
+    }
 }); 

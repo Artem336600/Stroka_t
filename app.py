@@ -623,6 +623,92 @@ def get_registration_steps():
         }
     })
 
+@app.route('/get_users', methods=['GET'])
+def get_users():
+    """
+    Получение списка всех пользователей из базы данных
+    """
+    try:
+        # Получаем всех пользователей из базы данных
+        response = supabase.table('users').select('*').execute()
+        
+        if response.data:
+            # Создаем список пользователей, исключая пароли и скрывая телеграм (будет отображаться только в системе)
+            users_data = []
+            for user in response.data:
+                user_data = {
+                    'id': user.get('id'),
+                    'last_name': user.get('last_name', ''),
+                    'first_name': user.get('first_name', ''),
+                    'middle_name': user.get('middle_name', ''),
+                    'user_role': user.get('user_role', ''),
+                    'age': user.get('age'),
+                    'university': user.get('university', ''),
+                    'faculty': user.get('faculty', ''),
+                    'course': user.get('course'),
+                    'workplace': user.get('workplace', ''),
+                    'about_me': user.get('about_me', ''),
+                    'tags': user.get('tags', []),
+                    'created_at': user.get('created_at')
+                }
+                users_data.append(user_data)
+            
+            return jsonify({'success': True, 'users': users_data})
+        
+        return jsonify({'success': False, 'error': 'Пользователи не найдены'}), 404
+        
+    except Exception as e:
+        logger.error(f"Ошибка при получении пользователей: {str(e)}")
+        return jsonify({'success': False, 'error': 'Произошла ошибка при получении данных пользователей'}), 500
+
+@app.route('/get_users_by_tags', methods=['POST'])
+def get_users_by_tags():
+    """
+    Получение списка пользователей, у которых есть хотя бы один тег из запрошенных
+    """
+    try:
+        data = request.json
+        tags = data.get('tags', [])
+        
+        if not tags:
+            return jsonify({'success': False, 'error': 'Не указаны теги для поиска'}), 400
+        
+        # Получаем всех пользователей из базы данных
+        response = supabase.table('users').select('*').execute()
+        
+        if not response.data:
+            return jsonify({'success': False, 'error': 'Пользователи не найдены'}), 404
+        
+        # Фильтруем пользователей по тегам
+        matching_users = []
+        for user in response.data:
+            user_tags = user.get('tags', [])
+            
+            # Проверяем, есть ли у пользователя хотя бы один из запрашиваемых тегов
+            if user_tags and any(tag in user_tags for tag in tags):
+                user_data = {
+                    'id': user.get('id'),
+                    'last_name': user.get('last_name', ''),
+                    'first_name': user.get('first_name', ''),
+                    'middle_name': user.get('middle_name', ''),
+                    'user_role': user.get('user_role', ''),
+                    'age': user.get('age'),
+                    'university': user.get('university', ''),
+                    'faculty': user.get('faculty', ''),
+                    'course': user.get('course'),
+                    'workplace': user.get('workplace', ''),
+                    'about_me': user.get('about_me', ''),
+                    'tags': user.get('tags', []),
+                    'created_at': user.get('created_at')
+                }
+                matching_users.append(user_data)
+        
+        return jsonify({'success': True, 'users': matching_users})
+        
+    except Exception as e:
+        logger.error(f"Ошибка при получении пользователей по тегам: {str(e)}")
+        return jsonify({'success': False, 'error': 'Произошла ошибка при получении данных пользователей'}), 500
+
 if __name__ == '__main__':
     # Запускаем бота только если это основной процесс
     # Flask в режиме debug создает два процесса, и мы хотим избежать дублирования бота
