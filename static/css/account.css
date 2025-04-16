@@ -431,10 +431,15 @@ textarea.form-control {
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
-    z-index: 9999;
+    z-index: 999999 !important;
     display: none;
     align-items: center;
     justify-content: center;
+    overflow: hidden;
+}
+
+.tags-modal-overlay.active {
+    display: flex !important;
 }
 
 .tags-menu {
@@ -450,6 +455,13 @@ textarea.form-control {
     opacity: 0;
     transform: translateY(20px);
     transition: opacity 0.3s ease, transform 0.3s ease;
+    position: relative;
+    z-index: 1000000 !important;
+}
+
+.tags-modal-overlay.active .tags-menu {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
 }
 
 .tags-menu-header {
@@ -584,4 +596,19 @@ textarea.form-control {
 
 .tags-menu-apply:hover {
     background-color: var(--primary-dark);
+}
+
+/* Стили для сообщения об ошибке в модальном окне */
+.tags-error {
+    padding: 20px;
+    text-align: center;
+    color: var(--text-muted);
+    font-style: italic;
+    font-size: 14px;
+    line-height: 1.5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
 } 

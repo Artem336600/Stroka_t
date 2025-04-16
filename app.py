@@ -457,11 +457,13 @@ def update_account():
     data = request.json
     username = session['user']
     
+    logger.info(f"Запрос на обновление данных: username={username}, data={data}")
+    
     try:
         # Поля, которые можно обновить
         allowed_fields = [
             'age', 'university', 'faculty', 
-            'course', 'workplace', 'about_me'
+            'course', 'workplace', 'about_me', 'tags'
         ]
         
         # Отфильтровываем только допустимые поля
@@ -472,16 +474,41 @@ def update_account():
             if value and isinstance(value, str):
                 update_data[key] = value.strip()
         
+        # Логируем данные для отладки
+        logger.info(f"Обновление данных пользователя {username}: {update_data}")
+        
+        # Проверяем, есть ли поле tags и правильно ли оно форматировано
+        if 'tags' in update_data:
+            logger.info(f"Поле tags: {update_data['tags']}, тип: {type(update_data['tags'])}")
+            
+            # Проверяем, является ли поле tags списком
+            if isinstance(update_data['tags'], list):
+                logger.info(f"Поле tags является списком с {len(update_data['tags'])} элементами")
+            else:
+                logger.warning(f"Поле tags не является списком, преобразуем его")
+                try:
+                    # Пытаемся преобразовать tags в список, если это не список
+                    update_data['tags'] = list(update_data['tags'])
+                    logger.info(f"Преобразовано в список: {update_data['tags']}")
+                except Exception as e:
+                    logger.error(f"Не удалось преобразовать tags в список: {e}")
+        
         # Обновляем данные в БД
+        logger.info(f"Отправляем запрос на обновление: table=users, username={username}, data={update_data}")
         response = supabase.table('users').update(update_data).eq('telegram_username', username).execute()
+        logger.info(f"Ответ от Supabase: {response.data}")
         
         if len(response.data) > 0:
+            logger.info(f"Данные пользователя {username} успешно обновлены")
             return jsonify({'success': True, 'user': response.data[0]})
         else:
+            logger.error(f"Не удалось обновить данные пользователя {username}, ответ пуст")
             return jsonify({'success': False, 'error': 'Не удалось обновить данные пользователя'}), 400
     
     except Exception as e:
         logger.error(f"Ошибка при обновлении данных пользователя: {str(e)}")
+        import traceback
+        logger.error(traceback.format_exc())
         return jsonify({'success': False, 'error': 'Произошла ошибка при обработке запроса'}), 500
 
 # Маршрут для запуска скрипта Telegram бота
