@@ -37,9 +37,6 @@ document.addEventListener('DOMContentLoaded', function() {
         'Путешествия и туризм': '#f97316'
     };
     
-    // Элементы авторизации
-    const profileBtn = document.getElementById('profile-btn');
-    
     // Удаляем обработчики, которые конфликтуют с Bootstrap Modal
     // Теперь модальное окно управляется через Bootstrap
     

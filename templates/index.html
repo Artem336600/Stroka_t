@@ -15,9 +15,24 @@
 <body>
     <div class="app-container">
         <!-- Кнопка профиля -->
-        <button id="profile-btn" class="profile-btn" title="Профиль" data-bs-toggle="modal" data-bs-target="#authModal">
+        <button id="profile-btn" class="profile-btn" title="Профиль">
             <i class="bi bi-person"></i>
         </button>
+        
+        <!-- Меню профиля (отображается при авторизации) -->
+        <div id="profile-menu" class="profile-menu">
+            <div class="profile-menu-header">
+                <span id="profile-username" class="profile-username"></span>
+            </div>
+            <div class="profile-menu-item" id="account-btn">
+                <i class="bi bi-person-circle"></i>
+                <span>Аккаунт</span>
+            </div>
+            <div class="profile-menu-item" id="logout-btn">
+                <i class="bi bi-box-arrow-right"></i>
+                <span>Выйти</span>
+            </div>
+        </div>
 
         <main class="app-main">
             <header class="app-header">

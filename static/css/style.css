@@ -1200,4 +1200,62 @@ body {
     margin-top: 0.25rem;
     font-size: 0.875rem;
     color: var(--danger-color);
+}
+
+/* Стили для меню профиля */
+.profile-menu {
+    position: absolute;
+    top: 60px;
+    right: 20px;
+    width: 200px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    overflow: hidden;
+    display: none;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.profile-menu.active {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.profile-menu-header {
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #eaeaea;
+}
+
+.profile-username {
+    font-weight: 600;
+    font-size: 14px;
+    color: #333;
+}
+
+.profile-menu-item {
+    padding: 12px 15px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.profile-menu-item:hover {
+    background-color: #f0f0f0;
+}
+
+.profile-menu-item i {
+    margin-right: 10px;
+    font-size: 16px;
+    color: #555;
+}
+
+.profile-menu-item span {
+    font-size: 14px;
+    color: #333;
 } 

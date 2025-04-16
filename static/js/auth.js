@@ -8,6 +8,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const registerForm = document.getElementById('registerForm');
     const loginBtn = document.getElementById('loginBtn');
     
+    // Элементы меню профиля
+    const profileMenu = document.getElementById('profile-menu');
+    const profileUsername = document.getElementById('profile-username');
+    const accountBtn = document.getElementById('account-btn');
+    const logoutBtn = document.getElementById('logout-btn');
+    
     // Кнопки показа/скрытия пароля
     const passwordToggleButtons = document.querySelectorAll('.password-toggle');
     
@@ -207,42 +213,74 @@ document.addEventListener('DOMContentLoaded', function() {
         registrationInProgress = false;
     }
     
-    // Обработка логина
+    // Обработка отправки формы входа
+    loginForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const telegramUsername = document.getElementById('loginUsername').value;
+        const password = document.getElementById('loginPassword').value;
+        
+        // Проверяем, что поля не пустые
+        if (!telegramUsername || !password) {
+            showNotification('Пожалуйста, заполните все поля', 'error');
+            return;
+        }
+        
+        loginBtn.disabled = true;
+        loginBtn.textContent = 'Выполняется вход...';
+        
+        // Отправляем запрос на авторизацию
+        fetch('/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                telegram_username: telegramUsername,
+                password: password
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Сохраняем данные пользователя
+                localStorage.setItem('user', JSON.stringify(data.user));
+                
+                // Обновляем кнопку профиля
+                updateProfileButton(data.user);
+                
+                // Закрываем модальное окно авторизации
+                const modalElement = document.getElementById('authModal');
+                const bootstrapModal = bootstrap.Modal.getInstance(modalElement);
+                bootstrapModal.hide();
+                
+                // Очищаем форму
+                document.getElementById('loginUsername').value = '';
+                document.getElementById('loginPassword').value = '';
+                
+                // Показываем уведомление об успешной авторизации
+                showNotification('Вы успешно вошли в систему', 'success');
+            } else {
+                showNotification(data.error || 'Ошибка при входе в систему', 'error');
+                highlightInvalidField('loginUsername');
+                highlightInvalidField('loginPassword');
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка при авторизации:', error);
+            showNotification('Произошла ошибка при авторизации', 'error');
+        })
+        .finally(() => {
+            loginBtn.disabled = false;
+            loginBtn.textContent = 'Войти';
+        });
+    });
+    
+    // Добавляем обработчик клика на кнопку входа
     if (loginBtn) {
         loginBtn.addEventListener('click', function() {
-            const telegram = document.getElementById('loginUsername').value.trim();
-            const password = document.getElementById('loginPassword').value;
-            
-            if (!telegram || !password) {
-                showNotification('Пожалуйста, заполните все поля', 'error');
-                return;
-            }
-            
-            // Удаляем символ @ если он присутствует
-            const cleanUsername = telegram.startsWith('@') ? telegram.substring(1) : telegram;
-            
-            // Отправка данных на сервер
-            fetch('/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ telegram_username: cleanUsername, password: password })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    bootstrapModal.hide();
-                    updateProfileButton(data.user);
-                    showNotification('Вы успешно вошли в систему', 'success');
-                } else {
-                    showNotification(data.error || 'Ошибка при входе', 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Ошибка:', error);
-                showNotification('Произошла ошибка при входе', 'error');
-            });
+            // Отправляем форму логина при клике на кнопку
+            loginForm.dispatchEvent(new Event('submit'));
         });
     }
     
@@ -1262,21 +1300,13 @@ document.addEventListener('DOMContentLoaded', function() {
     // Функция для обновления кнопки профиля
     function updateProfileButton(user) {
         if (user) {
-            // Пользователь авторизован
-            profileBtn.innerHTML = `<i class="bi bi-person-check-fill"></i>`;
-            profileBtn.title = `${user.telegram_username}`;
-            
-            // Добавить обработку выхода при клике на профиль
-            profileBtn.removeEventListener('click', showLoginModal);
-            profileBtn.addEventListener('click', showUserMenu);
+            // Если пользователь авторизован, убираем атрибуты для модального окна
+            profileBtn.removeAttribute('data-bs-toggle');
+            profileBtn.removeAttribute('data-bs-target');
         } else {
-            // Пользователь не авторизован
-            profileBtn.innerHTML = `<i class="bi bi-person-circle"></i>`;
-            profileBtn.title = 'Войти или зарегистрироваться';
-            
-            // Вернуть обработчик для входа
-            profileBtn.removeEventListener('click', showUserMenu);
-            profileBtn.addEventListener('click', showLoginModal);
+            // Если не авторизован, устанавливаем атрибуты для модального окна
+            profileBtn.setAttribute('data-bs-toggle', 'modal');
+            profileBtn.setAttribute('data-bs-target', '#authModal');
         }
     }
     
@@ -1480,14 +1510,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Проверка аутентификации при загрузке страницы
-    fetch('/check_auth')
-        .then(response => response.json())
-        .then(data => {
-            if (data.authenticated) {
-                updateProfileButton(data.user);
-            }
-        })
-        .catch(error => console.error('Ошибка при проверке аутентификации:', error));
+    checkAuthentication();
     
     // Обработчики для кнопок показа/скрытия пароля
     if (passwordToggleButtons.length > 0) {
@@ -1512,6 +1535,102 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
             });
+        });
+    }
+    
+    // Обработчик клика на кнопку профиля
+    profileBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        
+        // Проверяем, авторизован ли пользователь
+        if (localStorage.getItem('user')) {
+            // Если меню уже открыто, закрываем его
+            if (profileMenu.classList.contains('active')) {
+                profileMenu.classList.remove('active');
+            } else {
+                // Иначе открываем меню
+                profileMenu.classList.add('active');
+                
+                // Устанавливаем имя пользователя
+                const user = JSON.parse(localStorage.getItem('user'));
+                profileUsername.textContent = '@' + user.telegram_username;
+            }
+        } else {
+            // Если пользователь не авторизован, открываем модальное окно авторизации напрямую
+            const modal = new bootstrap.Modal(authModal);
+            modal.show();
+        }
+    });
+    
+    // Закрываем меню при клике в любое место страницы
+    document.addEventListener('click', function(e) {
+        if (profileMenu.classList.contains('active') && !profileMenu.contains(e.target) && e.target !== profileBtn) {
+            profileMenu.classList.remove('active');
+        }
+    });
+    
+    // Обработчик кнопки аккаунта
+    accountBtn.addEventListener('click', function() {
+        // Закрываем меню профиля
+        profileMenu.classList.remove('active');
+        
+        // Перенаправляем пользователя на страницу аккаунта
+        window.location.href = '/account';
+    });
+    
+    // Обработчик кнопки выхода
+    logoutBtn.addEventListener('click', function() {
+        logout();
+        profileMenu.classList.remove('active');
+    });
+    
+    // Обновлённая функция проверки авторизации
+    function checkAuthentication() {
+        fetch('/check_auth')
+        .then(response => response.json())
+        .then(data => {
+            if (data.authenticated) {
+                // Сохраняем данные пользователя
+                localStorage.setItem('user', JSON.stringify(data.user));
+                // В случае авторизованного пользователя, снимаем обработчики Bootstrap
+                profileBtn.removeAttribute('data-bs-toggle');
+                profileBtn.removeAttribute('data-bs-target');
+            } else {
+                // Если пользователь не авторизован, очищаем localStorage
+                localStorage.removeItem('user');
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка при проверке авторизации:', error);
+        });
+    }
+    
+    // Функция для выхода из системы
+    function logout() {
+        fetch('/logout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Очищаем localStorage 
+                localStorage.removeItem('user');
+                
+                // Показываем уведомление об успешном выходе
+                showNotification('Вы успешно вышли из системы', 'success');
+                
+                // Перезагружаем страницу для сброса состояния
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка при выходе из системы:', error);
+            showNotification('Произошла ошибка при выходе из системы', 'error');
         });
     }
 }); 

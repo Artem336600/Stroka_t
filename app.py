@@ -432,6 +432,58 @@ def check_auth():
         })
     return jsonify({'authenticated': False})
 
+# Новый маршрут для страницы аккаунта
+@app.route('/account', methods=['GET'])
+def account():
+    if 'user' not in session:
+        return render_template('index.html')
+    
+    # Получаем данные пользователя из БД
+    username = session['user']
+    response = supabase.table('users').select('*').eq('telegram_username', username).execute()
+    
+    if len(response.data) > 0:
+        user_data = response.data[0]
+        return render_template('account.html', user=user_data)
+    
+    return render_template('index.html')
+
+# Маршрут для обновления данных пользователя
+@app.route('/update_account', methods=['POST'])
+def update_account():
+    if 'user' not in session:
+        return jsonify({'success': False, 'error': 'Пользователь не авторизован'}), 401
+    
+    data = request.json
+    username = session['user']
+    
+    try:
+        # Поля, которые можно обновить
+        allowed_fields = [
+            'age', 'university', 'faculty', 
+            'course', 'workplace', 'about_me'
+        ]
+        
+        # Отфильтровываем только допустимые поля
+        update_data = {k: v for k, v in data.items() if k in allowed_fields}
+        
+        # Проверяем на пустые значения
+        for key, value in update_data.items():
+            if value and isinstance(value, str):
+                update_data[key] = value.strip()
+        
+        # Обновляем данные в БД
+        response = supabase.table('users').update(update_data).eq('telegram_username', username).execute()
+        
+        if len(response.data) > 0:
+            return jsonify({'success': True, 'user': response.data[0]})
+        else:
+            return jsonify({'success': False, 'error': 'Не удалось обновить данные пользователя'}), 400
+    
+    except Exception as e:
+        logger.error(f"Ошибка при обновлении данных пользователя: {str(e)}")
+        return jsonify({'success': False, 'error': 'Произошла ошибка при обработке запроса'}), 500
+
 # Маршрут для запуска скрипта Telegram бота
 @app.route('/start_bot', methods=['GET'])
 def start_bot():
