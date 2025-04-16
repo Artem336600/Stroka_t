@@ -9,7 +9,8 @@ from supabase_client import (
     verify_registration_request,
     register_user,
     validate_telegram_username,
-    authenticate_user
+    authenticate_user,
+    supabase
 )
 
 # Настройка логирования
@@ -58,7 +59,17 @@ def login():
     
     if success:
         session['user'] = clean_username
-        return jsonify({'success': True, 'user': {'telegram_username': clean_username}})
+        # Возвращаем больше данных о пользователе
+        user_data = {
+            'telegram_username': clean_username,
+            'user_role': user.get('user_role'),
+            'age': user.get('age'),
+            'university': user.get('university'),
+            'faculty': user.get('faculty'),
+            'course': user.get('course'),
+            'workplace': user.get('workplace')
+        }
+        return jsonify({'success': True, 'user': user_data})
     
     return jsonify({'success': False, 'error': 'Неверное имя пользователя или пароль'}), 401
 
@@ -93,7 +104,7 @@ def register_step1():
         # В реальном приложении здесь могла бы быть логика для отправки кода верификации
         # Но в нашем случае пользователь должен получить код через бота
         
-        return jsonify({'success': True})
+        return jsonify({'success': True, 'next_step': 'verification'})
     except Exception as e:
         logger.error(f"Ошибка при создании запроса на регистрацию: {str(e)}")
         return jsonify({'success': False, 'error': 'Произошла ошибка при обработке запроса'}), 500
@@ -114,7 +125,7 @@ def register_step2():
     is_verified = verify_registration_request(clean_username, verification_code)
     
     if is_verified:
-        return jsonify({'success': True})
+        return jsonify({'success': True, 'next_step': 'password'})
     
     return jsonify({'success': False, 'error': 'Неверный код подтверждения'}), 400
 
@@ -130,27 +141,221 @@ def register_step3():
     # Удаляем символ @ из имени пользователя, если он есть
     clean_username = telegram_username[1:] if telegram_username.startswith('@') else telegram_username
     
-    # Регистрируем пользователя
-    success, message = register_user(clean_username, password)
+    # На этом шаге мы только проверяем пароль, но не регистрируем пользователя
+    # Регистрация будет выполнена в последнем шаге
     
-    if success:
-        return jsonify({'success': True})
+    return jsonify({'success': True, 'next_step': 'user_role'})
+
+# Добавляем новый шаг для указания роли пользователя
+@app.route('/register/step4', methods=['POST'])
+def register_step4():
+    data = request.json
+    telegram_username = data.get('telegram_username')
+    user_role = data.get('user_role')
     
-    return jsonify({'success': False, 'error': message}), 400
+    if not telegram_username or not user_role:
+        return jsonify({'success': False, 'error': 'Пожалуйста, укажите кем вы являетесь (студент, преподаватель или работодатель)'}), 400
+    
+    # Проверяем, что роль указана корректно
+    if user_role not in ['student', 'teacher', 'employer']:
+        return jsonify({'success': False, 'error': 'Пожалуйста, выберите корректную роль (студент, преподаватель или работодатель)'}), 400
+    
+    return jsonify({'success': True, 'next_step': 'age'})
+
+# Добавляем новый шаг для указания возраста
+@app.route('/register/step5', methods=['POST'])
+def register_step5():
+    data = request.json
+    telegram_username = data.get('telegram_username')
+    age = data.get('age')
+    
+    if not telegram_username or age is None:
+        return jsonify({'success': False, 'error': 'Пожалуйста, укажите ваш возраст'}), 400
+    
+    try:
+        age_int = int(age)
+        if age_int < 14 or age_int > 100:
+            return jsonify({'success': False, 'error': 'Пожалуйста, укажите корректный возраст (от 14 до 100 лет)'}), 400
+    except ValueError:
+        return jsonify({'success': False, 'error': 'Возраст должен быть числом'}), 400
+    
+    # Получаем роль пользователя, чтобы определить следующий шаг
+    user_role = data.get('user_role')
+    if not user_role:
+        return jsonify({'success': False, 'error': 'Информация о роли пользователя отсутствует'}), 400
+    
+    # После возраста переходим к шагу о себе (для всех ролей)
+    # Дополнительная информация будет запрашиваться на следующих шагах
+    return jsonify({'success': True, 'next_step': 'about_me'})
+
+# Шаг о себе (для извлечения тегов)
+@app.route('/register/step6_about_me', methods=['POST'])
+def register_step6_about_me():
+    data = request.json
+    telegram_username = data.get('telegram_username')
+    about_me = data.get('about_me')
+    user_role = data.get('user_role')
+    
+    if not telegram_username:
+        return jsonify({'success': False, 'error': 'Отсутствует имя пользователя'}), 400
+
+    # Извлекаем теги из текста о себе, если текст был предоставлен
+    extracted_tags = []
+    if about_me and len(about_me.strip()) > 0:
+        try:
+            extracted_tags = extract_tags(about_me)
+            logger.debug(f"Извлечены теги из описания: {extracted_tags}")
+        except Exception as e:
+            logger.error(f"Ошибка при извлечении тегов: {str(e)}")
+    
+    # Переходим к шагу с дополнительной информацией в зависимости от роли пользователя
+    next_step = ''
+    if user_role == 'student':
+        next_step = 'university'
+    elif user_role == 'teacher':
+        next_step = 'university'
+    elif user_role == 'employer':
+        next_step = 'workplace'
+    else:
+        next_step = 'tags'  # Если роль не определена, переходим к выбору тегов
+    
+    return jsonify({
+        'success': True, 
+        'next_step': next_step,
+        'extracted_tags': extracted_tags
+    })
+
+# Добавляем новый шаг для указания вуза
+@app.route('/register/step7_university', methods=['POST'])
+def register_step7_university():
+    data = request.json
+    telegram_username = data.get('telegram_username')
+    university = data.get('university')
+    user_role = data.get('user_role')
+    
+    if not telegram_username or not university:
+        return jsonify({'success': False, 'error': 'Пожалуйста, укажите ваш вуз'}), 400
+    
+    next_step = ''
+    if user_role == 'student':
+        next_step = 'faculty'
+    elif user_role == 'teacher':
+        next_step = 'tags'
+    
+    return jsonify({'success': True, 'next_step': next_step})
+
+# Добавляем новый шаг для указания факультета (только для студентов)
+@app.route('/register/step8_faculty', methods=['POST'])
+def register_step8_faculty():
+    data = request.json
+    telegram_username = data.get('telegram_username')
+    faculty = data.get('faculty')
+    
+    if not telegram_username or not faculty:
+        return jsonify({'success': False, 'error': 'Пожалуйста, укажите ваш факультет'}), 400
+    
+    return jsonify({'success': True, 'next_step': 'course'})
+
+# Добавляем новый шаг для указания курса (только для студентов)
+@app.route('/register/step9_course', methods=['POST'])
+def register_step9_course():
+    data = request.json
+    telegram_username = data.get('telegram_username')
+    course = data.get('course')
+    
+    if not telegram_username or course is None:
+        return jsonify({'success': False, 'error': 'Пожалуйста, укажите ваш курс'}), 400
+    
+    try:
+        course_int = int(course)
+        if course_int < 1 or course_int > 6:
+            return jsonify({'success': False, 'error': 'Пожалуйста, укажите корректный курс (от 1 до 6)'}), 400
+    except ValueError:
+        return jsonify({'success': False, 'error': 'Курс должен быть числом'}), 400
+    
+    return jsonify({'success': True, 'next_step': 'tags'})
+
+# Добавляем новый шаг для указания места работы (только для работодателей)
+@app.route('/register/step7_workplace', methods=['POST'])
+def register_step7_workplace():
+    data = request.json
+    telegram_username = data.get('telegram_username')
+    workplace = data.get('workplace')
+    
+    if not telegram_username or not workplace:
+        return jsonify({'success': False, 'error': 'Пожалуйста, укажите ваше место работы'}), 400
+    
+    return jsonify({'success': True, 'next_step': 'tags'})
+
+# Добавляем новый шаг для выбора тегов (для всех ролей)
+@app.route('/register/step_tags', methods=['POST'])
+def register_step_tags():
+    data = request.json
+    telegram_username = data.get('telegram_username')
+    tags = data.get('tags')
+    
+    if not telegram_username or not tags or len(tags) == 0:
+        return jsonify({'success': False, 'error': 'Пожалуйста, выберите хотя бы один тег'}), 400
+    
+    return jsonify({'success': True, 'next_step': 'complete'})
 
 @app.route('/register/complete', methods=['POST'])
 def register_complete():
+    # Получаем все данные, собранные в течение процесса регистрации
     data = request.json
-    telegram_username = data.get('telegram_username')
-    password = data.get('password')
-    about_me = data.get('about_me')
-    tags = data.get('tags')
+    telegram_username = data.get('telegram_username')  # Шаг 1: Telegram
+    password = data.get('password')  # Шаг 3: Пароль
+    about_me = data.get('about_me')  # Шаг 6: О себе
+    tags = data.get('tags')  # Шаг по выбору тегов (извлеченных или выбранных вручную)
+    user_role = data.get('user_role')  # Шаг 4: Кем является
+    age = data.get('age')  # Шаг 5: Возраст
+    
+    # Дополнительные данные в зависимости от роли пользователя
+    university = data.get('university')  # Для студентов и преподавателей
+    faculty = data.get('faculty')  # Только для студентов
+    course = data.get('course')  # Только для студентов
+    workplace = data.get('workplace')  # Только для работодателей
     
     logger.debug(f"Получен запрос на завершение регистрации для {telegram_username}")
     
     if not telegram_username or not password:
         logger.warning("Отсутствуют обязательные поля для регистрации")
         return jsonify({'success': False, 'error': 'Пожалуйста, введите все необходимые данные'}), 400
+    
+    # Проверяем наличие роли пользователя
+    if not user_role:
+        logger.warning("Пользователь не указал свою роль")
+        return jsonify({'success': False, 'error': 'Пожалуйста, укажите кем вы являетесь (студент, преподаватель или работодатель)'}), 400
+    
+    # Проверяем возраст
+    if age is None:
+        logger.warning("Пользователь не указал свой возраст")
+        return jsonify({'success': False, 'error': 'Пожалуйста, укажите ваш возраст'}), 400
+    
+    # Проверяем данные в зависимости от роли
+    if user_role == 'student':
+        if not university:
+            logger.warning("Студент не указал вуз")
+            return jsonify({'success': False, 'error': 'Пожалуйста, укажите ваш вуз'}), 400
+        if not faculty:
+            logger.warning("Студент не указал факультет")
+            return jsonify({'success': False, 'error': 'Пожалуйста, укажите ваш факультет'}), 400
+        if course is None:
+            logger.warning("Студент не указал курс")
+            return jsonify({'success': False, 'error': 'Пожалуйста, укажите ваш курс'}), 400
+    elif user_role == 'teacher':
+        if not university:
+            logger.warning("Преподаватель не указал вуз")
+            return jsonify({'success': False, 'error': 'Пожалуйста, укажите ваш вуз'}), 400
+    elif user_role == 'employer':
+        if not workplace:
+            logger.warning("Работодатель не указал место работы")
+            return jsonify({'success': False, 'error': 'Пожалуйста, укажите ваше место работы'}), 400
+    
+    # Проверяем наличие хотя бы одного тега
+    if not tags or len(tags) == 0:
+        logger.warning("Пользователь не указал ни одного тега")
+        return jsonify({'success': False, 'error': 'Пожалуйста, выберите хотя бы один тег'}), 400
     
     # Удаляем символ @ из имени пользователя, если он есть
     clean_username = telegram_username[1:] if telegram_username.startswith('@') else telegram_username
@@ -162,7 +367,13 @@ def register_complete():
         clean_username, 
         password,
         about_me,
-        tags
+        tags,
+        user_role,
+        age,
+        university,
+        faculty,
+        course,
+        workplace
     )
     
     if success:
@@ -172,7 +383,13 @@ def register_complete():
         return jsonify({
             'success': True, 
             'user': {
-                'telegram_username': clean_username
+                'telegram_username': clean_username,
+                'user_role': user_role,
+                'age': age,
+                'university': university,
+                'faculty': faculty,
+                'course': course,
+                'workplace': workplace
             }
         })
     
@@ -187,6 +404,28 @@ def logout():
 @app.route('/check_auth', methods=['GET'])
 def check_auth():
     if 'user' in session:
+        # Получаем дополнительные данные о пользователе
+        try:
+            response = supabase.table('users').select('*').eq('telegram_username', session['user']).execute()
+            if response.data:
+                user = response.data[0]
+                user_data = {
+                    'telegram_username': session['user'],
+                    'user_role': user.get('user_role'),
+                    'age': user.get('age'),
+                    'university': user.get('university'),
+                    'faculty': user.get('faculty'),
+                    'course': user.get('course'),
+                    'workplace': user.get('workplace')
+                }
+                return jsonify({
+                    'authenticated': True, 
+                    'user': user_data
+                })
+        except Exception as e:
+            logger.error(f"Ошибка при получении данных пользователя: {str(e)}")
+            
+        # Если не удалось получить дополнительные данные, возвращаем минимум
         return jsonify({
             'authenticated': True, 
             'user': {'telegram_username': session['user']}
@@ -226,6 +465,42 @@ def register_cancel():
         return jsonify({'success': True, 'message': 'Запрос на регистрацию отменен'})
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/register/get_steps', methods=['GET'])
+def get_registration_steps():
+    """
+    Возвращает информацию о шагах регистрации для фронтенда.
+    Фронтенд может использовать эту информацию для отображения прогресса регистрации.
+    """
+    basic_steps = [
+        {"id": "telegram", "label": "Telegram", "order": 1},
+        {"id": "verification", "label": "Проверка", "order": 2},
+        {"id": "password", "label": "Пароль", "order": 3},
+        {"id": "user_role", "label": "Кем являетесь", "order": 4},
+        {"id": "age", "label": "Возраст", "order": 5},
+        {"id": "about_me", "label": "О себе", "order": 6},
+        {"id": "complete", "label": "Готово", "order": 7}
+    ]
+    
+    return jsonify({
+        "steps": basic_steps,
+        "additional_steps": {
+            "student": [
+                {"id": "university", "label": "ВУЗ", "after": "about_me"},
+                {"id": "faculty", "label": "Факультет", "after": "university"},
+                {"id": "course", "label": "Курс", "after": "faculty"},
+                {"id": "tags", "label": "Теги", "after": "course"}
+            ],
+            "teacher": [
+                {"id": "university", "label": "ВУЗ", "after": "about_me"},
+                {"id": "tags", "label": "Теги", "after": "university"}
+            ],
+            "employer": [
+                {"id": "workplace", "label": "Место работы", "after": "about_me"},
+                {"id": "tags", "label": "Теги", "after": "workplace"}
+            ]
+        }
+    })
 
 if __name__ == '__main__':
     # Запускаем бота только если это основной процесс

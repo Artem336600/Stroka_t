@@ -66,8 +66,22 @@ document.addEventListener('DOMContentLoaded', function() {
     // Хранение текущего пользователя Telegram
     let currentTelegramUsername = '';
     let registrationInProgress = false;
-    const totalSteps = 5;
+    const totalSteps = 7;
     let currentStep = 1;
+    
+    // Данные пользователя
+    let userData = {
+        telegram_username: '',
+        password: '',
+        user_role: '',
+        age: null,
+        about_me: '',
+        tags: [],
+        university: '',
+        faculty: '',
+        course: null,
+        workplace: ''
+    };
     
     // Хранение тегов для описания проекта
     let selectedTags = new Set();
@@ -128,6 +142,27 @@ document.addEventListener('DOMContentLoaded', function() {
         if (regPasswordConfirm) regPasswordConfirm.value = '';
         if (descriptionText) descriptionText.value = '';
         if (descriptionCharCounter) descriptionCharCounter.textContent = '0/500';
+        if (userAgeInput) userAgeInput.value = '';
+        if (universityInput) universityInput.value = '';
+        if (teacherUniversityInput) teacherUniversityInput.value = '';
+        if (facultyInput) facultyInput.value = '';
+        if (courseInput) courseInput.value = '';
+        if (workplaceInput) workplaceInput.value = '';
+        
+        // Сбрасываем роль пользователя
+        if (roleOptions) {
+            roleOptions.forEach(opt => opt.classList.remove('selected'));
+        }
+        
+        // Скрываем дополнительные поля
+        if (studentFields) studentFields.style.display = 'none';
+        if (teacherFields) teacherFields.style.display = 'none';
+        if (employerFields) employerFields.style.display = 'none';
+        
+        // Деактивируем кнопку на шаге 4
+        if (step4NextBtn) {
+            step4NextBtn.disabled = true;
+        }
         
         // Скрываем секцию с тегами в описании
         if (tagsSection) tagsSection.style.display = 'none';
@@ -135,6 +170,20 @@ document.addEventListener('DOMContentLoaded', function() {
         // Очищаем теги в описании
         if (tagsContainer) tagsContainer.innerHTML = '';
         selectedTags.clear();
+        
+        // Сбрасываем данные пользователя
+        userData = {
+            telegram_username: '',
+            password: '',
+            user_role: '',
+            age: null,
+            about_me: '',
+            tags: [],
+            university: '',
+            faculty: '',
+            course: null,
+            workplace: ''
+        };
         
         // Показываем только первый шаг
         registerSteps.forEach(step => step.classList.remove('active'));
@@ -837,11 +886,190 @@ document.addEventListener('DOMContentLoaded', function() {
     // Обработка кнопок навигации шага 4
     if (step4NextBtn) {
         step4NextBtn.addEventListener('click', function() {
+            if (!userData.user_role) {
+                showNotification('Пожалуйста, выберите кем вы являетесь', 'error');
+                return;
+            }
+            
+            // Проверка заполнения дополнительных полей в зависимости от роли
+            if (userData.user_role === 'student') {
+                if (!userData.university) {
+                    showNotification('Пожалуйста, укажите ваш ВУЗ', 'error');
+                    return;
+                }
+                if (!userData.faculty) {
+                    showNotification('Пожалуйста, укажите ваш факультет', 'error');
+                    return;
+                }
+                if (!userData.course) {
+                    showNotification('Пожалуйста, укажите ваш курс', 'error');
+                    return;
+                }
+            } else if (userData.user_role === 'teacher') {
+                if (!userData.university) {
+                    showNotification('Пожалуйста, укажите ваш ВУЗ', 'error');
+                    return;
+                }
+            } else if (userData.user_role === 'employer') {
+                if (!userData.workplace) {
+                    showNotification('Пожалуйста, укажите место работы', 'error');
+                    return;
+                }
+            }
+            
+            // Переходим к следующему шагу (Возраст)
+            showStep(5);
+        });
+    }
+    
+    if (step4BackBtn) {
+        step4BackBtn.addEventListener('click', function() {
+            showStep(3);
+        });
+    }
+    
+    // Получение элементов DOM для новых шагов
+    const step6 = document.getElementById('step6');
+    const step7 = document.getElementById('step7');
+    const userAgeInput = document.getElementById('userAge');
+    const roleOptions = document.querySelectorAll('.role-option');
+    const step5NextBtn = document.getElementById('step5NextBtn');
+    const step6NextBtn = document.getElementById('step6NextBtn');
+    const step5BackBtn = document.getElementById('step5BackBtn');
+    const step6BackBtn = document.getElementById('step6BackBtn');
+    
+    // Получение элементов DOM для дополнительных полей
+    const studentFields = document.getElementById('student-fields');
+    const teacherFields = document.getElementById('teacher-fields');
+    const employerFields = document.getElementById('employer-fields');
+    const universityInput = document.getElementById('university');
+    const teacherUniversityInput = document.getElementById('teacher-university');
+    const facultyInput = document.getElementById('faculty');
+    const courseInput = document.getElementById('course');
+    const workplaceInput = document.getElementById('workplace');
+    
+    // Обработчики для шага "Кем являетесь"
+    if (roleOptions) {
+        roleOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                // Снимаем выделение со всех опций
+                roleOptions.forEach(opt => opt.classList.remove('selected'));
+                
+                // Скрываем все дополнительные поля
+                if (studentFields) studentFields.style.display = 'none';
+                if (teacherFields) teacherFields.style.display = 'none';
+                if (employerFields) employerFields.style.display = 'none';
+                
+                // Выделяем выбранную опцию
+                this.classList.add('selected');
+                
+                // Сохраняем выбранную роль
+                const role = this.getAttribute('data-role');
+                userData.user_role = role;
+                
+                // Показываем соответствующие дополнительные поля
+                if (role === 'student' && studentFields) {
+                    studentFields.style.display = 'block';
+                } else if (role === 'teacher' && teacherFields) {
+                    teacherFields.style.display = 'block';
+                } else if (role === 'employer' && employerFields) {
+                    employerFields.style.display = 'block';
+                }
+                
+                // Активируем кнопку "Продолжить"
+                if (step4NextBtn) {
+                    step4NextBtn.disabled = false;
+                }
+            });
+        });
+    }
+    
+    // Обработчики для полей ввода данных
+    if (universityInput) {
+        universityInput.addEventListener('input', function() {
+            userData.university = this.value.trim();
+        });
+    }
+    
+    if (teacherUniversityInput) {
+        teacherUniversityInput.addEventListener('input', function() {
+            userData.university = this.value.trim();
+        });
+    }
+    
+    if (facultyInput) {
+        facultyInput.addEventListener('input', function() {
+            userData.faculty = this.value.trim();
+        });
+    }
+    
+    if (courseInput) {
+        courseInput.addEventListener('input', function() {
+            userData.course = this.value ? parseInt(this.value, 10) : null;
+        });
+    }
+    
+    if (workplaceInput) {
+        workplaceInput.addEventListener('input', function() {
+            userData.workplace = this.value.trim();
+        });
+    }
+    
+    // Обработчик для поля возраста
+    if (userAgeInput) {
+        userAgeInput.addEventListener('input', function() {
+            userData.age = this.value ? parseInt(this.value, 10) : null;
+        });
+    }
+    
+    // Обработчик для кнопки "Продолжить" на шаге 5 (Возраст)
+    if (step5NextBtn) {
+        step5NextBtn.addEventListener('click', function() {
+            // Проверяем, что возраст указан
+            if (!userData.age) {
+                showNotification('Пожалуйста, укажите ваш возраст', 'error');
+                return;
+            }
+            
+            // Проверяем, что возраст в допустимых пределах
+            if (userData.age < 14 || userData.age > 100) {
+                showNotification('Пожалуйста, укажите корректный возраст (от 14 до 100 лет)', 'error');
+                return;
+            }
+            
+            // Переходим к шагу "О себе"
+            showStep(6);
+        });
+    }
+    
+    // Обработчик для кнопки "Назад" на шаге 5
+    if (step5BackBtn) {
+        step5BackBtn.addEventListener('click', function() {
+            showStep(4);
+        });
+    }
+    
+    // Обработчик для кнопки "Назад" на шаге 6
+    if (step6BackBtn) {
+        step6BackBtn.addEventListener('click', function() {
+            showStep(5);
+        });
+    }
+    
+    // Обработчик для кнопки "Завершить" на шаге 6 (О себе)
+    if (step6NextBtn) {
+        step6NextBtn.addEventListener('click', function() {
             // Собираем выбранные теги в массив
             const tagsArray = Array.from(selectedTags);
             
             // Получаем описание о себе
             const aboutMe = descriptionText.value.trim();
+            
+            // Сохраняем данные в userData
+            userData.telegram_username = currentTelegramUsername;
+            userData.password = regPassword.value;
+            userData.about_me = aboutMe;
+            userData.tags = tagsArray;
             
             // Отправляем данные регистрации на сервер
             fetch('/register/complete', {
@@ -849,18 +1077,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({
-                    telegram_username: currentTelegramUsername,
-                    password: regPassword.value,
-                    about_me: aboutMe,
-                    tags: tagsArray
-                })
+                body: JSON.stringify(userData)
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
                     // Показываем шаг успешной регистрации
-                    showStep(5);
+                    showStep(7);
                     startConfetti();
                     
                     // Автоматический вход пользователя
@@ -879,12 +1102,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.error('Ошибка:', error);
                 showNotification('Произошла ошибка при регистрации', 'error');
             });
-        });
-    }
-    
-    if (step4BackBtn) {
-        step4BackBtn.addEventListener('click', function() {
-            showStep(3);
         });
     }
     
@@ -925,6 +1142,8 @@ document.addEventListener('DOMContentLoaded', function() {
             case 3: targetStep = step3; break;
             case 4: targetStep = step4; break;
             case 5: targetStep = step5; break;
+            case 6: targetStep = step6; break;
+            case 7: targetStep = step7; break;
             default: targetStep = step1;
         }
         

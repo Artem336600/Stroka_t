@@ -53,7 +53,7 @@ def verify_registration_request(telegram_username, verification_code):
     
     return False
 
-def register_user(telegram_username, password, about_me=None, tags=None):
+def register_user(telegram_username, password, about_me=None, tags=None, user_role=None, age=None, university=None, faculty=None, course=None, workplace=None):
     """
     Регистрирует нового пользователя
     """
@@ -88,6 +88,24 @@ def register_user(telegram_username, password, about_me=None, tags=None):
             
         if tags:
             user_data['tags'] = tags
+            
+        if user_role:
+            user_data['user_role'] = user_role
+            
+        if age is not None:
+            user_data['age'] = age
+            
+        if university:
+            user_data['university'] = university
+            
+        if faculty:
+            user_data['faculty'] = faculty
+            
+        if course is not None:
+            user_data['course'] = course
+            
+        if workplace:
+            user_data['workplace'] = workplace
             
         response = supabase.table('users').insert(user_data).execute()
         

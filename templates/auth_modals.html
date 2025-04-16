@@ -53,7 +53,7 @@
                                 <div class="step-progress-indicator" id="progressIndicator"></div>
                             </div>
                             <div class="steps-counter">
-                                <span id="currentStepNumber">1</span> из <span id="totalSteps">5</span>
+                                <span id="currentStepNumber">1</span> из <span id="totalSteps">7</span>
                             </div>
                         </div>
 
@@ -73,9 +73,17 @@
                             </div>
                             <div class="step-dot" data-step="4">
                                 <div class="step-dot-inner"></div>
-                                <div class="step-label">О себе</div>
+                                <div class="step-label">Кем являетесь</div>
                             </div>
                             <div class="step-dot" data-step="5">
+                                <div class="step-dot-inner"></div>
+                                <div class="step-label">Возраст</div>
+                            </div>
+                            <div class="step-dot" data-step="6">
+                                <div class="step-dot-inner"></div>
+                                <div class="step-label">О себе</div>
+                            </div>
+                            <div class="step-dot" data-step="7">
                                 <div class="step-dot-inner"></div>
                                 <div class="step-label">Готово</div>
                             </div>
@@ -188,8 +196,120 @@
                             </div>
                         </div>
 
-                        <!-- Шаг 4: Анализ описания проекта -->
-                        <div id="step4" class="register-step">
+                        <!-- Шаг 4: Кем являетесь -->
+                        <div class="register-step" id="step4">
+                            <h3 class="step-title">Кем вы являетесь?</h3>
+                            <p class="step-description">Выберите категорию, которая лучше всего вас описывает</p>
+                            
+                            <div class="role-selection">
+                                <div class="role-option" data-role="student">
+                                    <div class="role-icon">
+                                        <i class="bi bi-mortarboard"></i>
+                                    </div>
+                                    <h4>Студент</h4>
+                                    <p>Учусь в университете или другом учебном заведении</p>
+                                </div>
+                                <div class="role-option" data-role="teacher">
+                                    <div class="role-icon">
+                                        <i class="bi bi-easel"></i>
+                                    </div>
+                                    <h4>Преподаватель</h4>
+                                    <p>Преподаю в учебном заведении</p>
+                                </div>
+                                <div class="role-option" data-role="employer">
+                                    <div class="role-icon">
+                                        <i class="bi bi-briefcase"></i>
+                                    </div>
+                                    <h4>Работодатель</h4>
+                                    <p>Представляю компанию и ищу специалистов</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Дополнительные поля для студента -->
+                            <div id="student-fields" class="role-specific-fields" style="display: none;">
+                                <div class="form-group">
+                                    <label for="university">ВУЗ</label>
+                                    <div class="input-icon-wrap">
+                                        <i class="bi bi-building input-icon"></i>
+                                        <input type="text" id="university" class="form-control" placeholder="Введите название вуза">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="faculty">Факультет</label>
+                                    <div class="input-icon-wrap">
+                                        <i class="bi bi-book input-icon"></i>
+                                        <input type="text" id="faculty" class="form-control" placeholder="Введите название факультета">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="course">Курс</label>
+                                    <div class="input-icon-wrap">
+                                        <i class="bi bi-list-ol input-icon"></i>
+                                        <input type="number" id="course" class="form-control" placeholder="Курс" min="1" max="6">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Дополнительные поля для преподавателя -->
+                            <div id="teacher-fields" class="role-specific-fields" style="display: none;">
+                                <div class="form-group">
+                                    <label for="teacher-university">ВУЗ</label>
+                                    <div class="input-icon-wrap">
+                                        <i class="bi bi-building input-icon"></i>
+                                        <input type="text" id="teacher-university" class="form-control" placeholder="Введите название вуза">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Дополнительные поля для работодателя -->
+                            <div id="employer-fields" class="role-specific-fields" style="display: none;">
+                                <div class="form-group">
+                                    <label for="workplace">Место работы</label>
+                                    <div class="input-icon-wrap">
+                                        <i class="bi bi-building input-icon"></i>
+                                        <input type="text" id="workplace" class="form-control" placeholder="Введите название организации">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-actions">
+                                <button type="button" id="step4BackBtn" class="auth-back-btn">
+                                    <i class="bi bi-arrow-left"></i>
+                                </button>
+                                <button type="button" id="step4NextBtn" class="auth-submit-btn" disabled>
+                                    <span>Продолжить</span>
+                                    <i class="bi bi-arrow-right ms-2"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Шаг 5: Возраст -->
+                        <div class="register-step" id="step5">
+                            <h3 class="step-title">Ваш возраст</h3>
+                            <p class="step-description">Укажите ваш текущий возраст</p>
+                            
+                            <div class="form-group">
+                                <label for="userAge">Возраст</label>
+                                <div class="input-icon-wrap">
+                                    <i class="bi bi-calendar-event input-icon"></i>
+                                    <input type="number" id="userAge" class="form-control" placeholder="Введите возраст" min="14" max="100">
+                                </div>
+                                <div class="form-text">Укажите возраст от 14 до 100 лет</div>
+                            </div>
+                            
+                            <div class="form-actions">
+                                <button type="button" id="step5BackBtn" class="auth-back-btn">
+                                    <i class="bi bi-arrow-left"></i>
+                                </button>
+                                <button type="button" id="step5NextBtn" class="auth-submit-btn">
+                                    <span>Продолжить</span>
+                                    <i class="bi bi-arrow-right ms-2"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Шаг 6: Анализ описания проекта -->
+                        <div id="step6" class="register-step">
                             <h3 class="step-title">Расскажите о себе</h3>
                             <p class="step-description">Опишите свои интересы, навыки и опыт, и мы автоматически подберем подходящие теги.</p>
                             
@@ -221,18 +341,18 @@
                             </div>
                             
                             <div class="form-actions">
-                                <button id="step4BackBtn" class="auth-back-btn" type="button">
+                                <button id="step6BackBtn" class="auth-back-btn" type="button">
                                     <i class="bi bi-arrow-left"></i>
                                 </button>
-                                <button id="step4NextBtn" class="auth-submit-btn" type="button">
+                                <button id="step6NextBtn" class="auth-submit-btn" type="button">
                                     <span>Завершить</span>
                                     <i class="bi bi-check-lg ms-2"></i>
                                 </button>
                             </div>
                         </div>
 
-                        <!-- Шаг 5: Успешная регистрация -->
-                        <div class="register-step" id="step5">
+                        <!-- Шаг 7: Успешная регистрация -->
+                        <div class="register-step" id="step7">
                             <div class="success-message">
                                 <div class="confetti"></div>
                                 <i class="bi bi-check-circle-fill"></i>

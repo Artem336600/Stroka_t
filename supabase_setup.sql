@@ -14,6 +14,12 @@ CREATE TABLE IF NOT EXISTS users (
   password TEXT NOT NULL,
   about_me TEXT,
   tags JSONB,
+  user_role TEXT CHECK (user_role IN ('student', 'teacher', 'employer')),
+  age INTEGER,
+  university TEXT,
+  faculty TEXT,
+  course INTEGER,
+  workplace TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
   last_login TIMESTAMP WITH TIME ZONE
 );
