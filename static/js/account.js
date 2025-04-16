@@ -179,6 +179,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(data => {
                     if (data.success) {
                         showNotification('Данные успешно сохранены', 'success');
+                        
+                        // Обновляем приветствие пользователя, если изменилось имя
+                        const firstName = userData.first_name.trim();
+                        if (firstName) {
+                            const usernameElement = document.querySelector('.user-welcome .username');
+                            if (usernameElement) {
+                                usernameElement.textContent = firstName;
+                            }
+                        }
                     } else {
                         showNotification(data.error || 'Не удалось сохранить данные', 'error');
                     }

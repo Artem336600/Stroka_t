@@ -45,31 +45,42 @@ def get_all_tags():
 
 @app.route('/login', methods=['POST'])
 def login():
+    """
+    Авторизация пользователя
+    """
     data = request.json
     telegram_username = data.get('telegram_username')
     password = data.get('password')
     
     if not telegram_username or not password:
-        return jsonify({'success': False, 'error': 'Пожалуйста, введите имя пользователя и пароль'}), 400
+        return jsonify({'success': False, 'error': 'Пожалуйста, заполните все поля'}), 400
     
     # Удаляем символ @ из имени пользователя, если он есть
     clean_username = telegram_username[1:] if telegram_username.startswith('@') else telegram_username
     
-    success, user = authenticate_user(clean_username, password)
+    # Проверяем учетные данные
+    success, user_data = authenticate_user(clean_username, password)
     
     if success:
+        # Устанавливаем сессию пользователя
         session['user'] = clean_username
-        # Возвращаем больше данных о пользователе
-        user_data = {
-            'telegram_username': clean_username,
-            'user_role': user.get('user_role'),
-            'age': user.get('age'),
-            'university': user.get('university'),
-            'faculty': user.get('faculty'),
-            'course': user.get('course'),
-            'workplace': user.get('workplace')
-        }
-        return jsonify({'success': True, 'user': user_data})
+        
+        # Возвращаем данные пользователя
+        return jsonify({
+            'success': True, 
+            'user': {
+                'telegram_username': clean_username,
+                'last_name': user_data.get('last_name', ''),
+                'first_name': user_data.get('first_name', ''),
+                'middle_name': user_data.get('middle_name', ''),
+                'user_role': user_data.get('user_role', ''),
+                'age': user_data.get('age'),
+                'university': user_data.get('university', ''),
+                'faculty': user_data.get('faculty', ''),
+                'course': user_data.get('course'),
+                'workplace': user_data.get('workplace', '')
+            }
+        })
     
     return jsonify({'success': False, 'error': 'Неверное имя пользователя или пароль'}), 401
 
@@ -136,17 +147,34 @@ def register_step3():
     password = data.get('password')
     
     if not telegram_username or not password:
-        return jsonify({'success': False, 'error': 'Пожалуйста, введите все необходимые данные'}), 400
+        return jsonify({'success': False, 'error': 'Пожалуйста, введите пароль'}), 400
     
-    # Удаляем символ @ из имени пользователя, если он есть
-    clean_username = telegram_username[1:] if telegram_username.startswith('@') else telegram_username
+    # Простая проверка на длину пароля
+    if len(password) < 8:
+        return jsonify({'success': False, 'error': 'Пароль должен содержать минимум 8 символов'}), 400
     
-    # На этом шаге мы только проверяем пароль, но не регистрируем пользователя
-    # Регистрация будет выполнена в последнем шаге
-    
-    return jsonify({'success': True, 'next_step': 'user_role'})
+    return jsonify({'success': True, 'next_step': 'full_name'})
 
-# Добавляем новый шаг для указания роли пользователя
+@app.route('/register/step_full_name', methods=['POST'])
+def register_step_full_name():
+    data = request.json
+    telegram_username = data.get('telegram_username')
+    last_name = data.get('last_name')
+    first_name = data.get('first_name')
+    middle_name = data.get('middle_name')
+    
+    if not telegram_username or not last_name or not first_name:
+        return jsonify({'success': False, 'error': 'Пожалуйста, введите вашу фамилию и имя'}), 400
+    
+    # Проверяем минимальную длину фамилии и имени
+    if len(last_name.strip()) < 2:
+        return jsonify({'success': False, 'error': 'Пожалуйста, введите корректную фамилию'}), 400
+    
+    if len(first_name.strip()) < 2:
+        return jsonify({'success': False, 'error': 'Пожалуйста, введите корректное имя'}), 400
+    
+    return jsonify({'success': True, 'next_step': 'role'})
+
 @app.route('/register/step4', methods=['POST'])
 def register_step4():
     data = request.json
@@ -305,6 +333,9 @@ def register_complete():
     data = request.json
     telegram_username = data.get('telegram_username')  # Шаг 1: Telegram
     password = data.get('password')  # Шаг 3: Пароль
+    last_name = data.get('last_name')  # Шаг ФИО - Фамилия
+    first_name = data.get('first_name')  # Шаг ФИО - Имя
+    middle_name = data.get('middle_name')  # Шаг ФИО - Отчество
     about_me = data.get('about_me')  # Шаг 6: О себе
     tags = data.get('tags')  # Шаг по выбору тегов (извлеченных или выбранных вручную)
     user_role = data.get('user_role')  # Шаг 4: Кем является
@@ -373,7 +404,10 @@ def register_complete():
         university,
         faculty,
         course,
-        workplace
+        workplace,
+        last_name,
+        first_name,
+        middle_name
     )
     
     if success:
@@ -384,6 +418,9 @@ def register_complete():
             'success': True, 
             'user': {
                 'telegram_username': clean_username,
+                'last_name': last_name,
+                'first_name': first_name,
+                'middle_name': middle_name,
                 'user_role': user_role,
                 'age': age,
                 'university': university,
@@ -411,6 +448,9 @@ def check_auth():
                 user = response.data[0]
                 user_data = {
                     'telegram_username': session['user'],
+                    'last_name': user.get('last_name'),
+                    'first_name': user.get('first_name'),
+                    'middle_name': user.get('middle_name'),
                     'user_role': user.get('user_role'),
                     'age': user.get('age'),
                     'university': user.get('university'),
@@ -462,6 +502,7 @@ def update_account():
     try:
         # Поля, которые можно обновить
         allowed_fields = [
+            'last_name', 'first_name', 'middle_name',
             'age', 'university', 'faculty', 
             'course', 'workplace', 'about_me', 'tags'
         ]
@@ -555,10 +596,11 @@ def get_registration_steps():
         {"id": "telegram", "label": "Telegram", "order": 1},
         {"id": "verification", "label": "Проверка", "order": 2},
         {"id": "password", "label": "Пароль", "order": 3},
-        {"id": "user_role", "label": "Кем являетесь", "order": 4},
-        {"id": "age", "label": "Возраст", "order": 5},
-        {"id": "about_me", "label": "О себе", "order": 6},
-        {"id": "complete", "label": "Готово", "order": 7}
+        {"id": "full_name", "label": "ФИО", "order": 4},
+        {"id": "user_role", "label": "Кем являетесь", "order": 5},
+        {"id": "age", "label": "Возраст", "order": 6},
+        {"id": "about_me", "label": "О себе", "order": 7},
+        {"id": "complete", "label": "Готово", "order": 8}
     ]
     
     return jsonify({

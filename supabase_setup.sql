@@ -11,6 +11,9 @@ CREATE TABLE IF NOT EXISTS registration_requests (
 CREATE TABLE IF NOT EXISTS users (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   telegram_username TEXT NOT NULL UNIQUE,
+  last_name TEXT,
+  first_name TEXT,
+  middle_name TEXT,
   password TEXT NOT NULL,
   about_me TEXT,
   tags JSONB,

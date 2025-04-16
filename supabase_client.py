@@ -53,7 +53,7 @@ def verify_registration_request(telegram_username, verification_code):
     
     return False
 
-def register_user(telegram_username, password, about_me=None, tags=None, user_role=None, age=None, university=None, faculty=None, course=None, workplace=None):
+def register_user(telegram_username, password, about_me=None, tags=None, user_role=None, age=None, university=None, faculty=None, course=None, workplace=None, last_name=None, first_name=None, middle_name=None):
     """
     Регистрирует нового пользователя
     """
@@ -83,6 +83,15 @@ def register_user(telegram_username, password, about_me=None, tags=None, user_ro
         }
         
         # Добавляем дополнительные данные, если они предоставлены
+        if last_name:
+            user_data['last_name'] = last_name
+            
+        if first_name:
+            user_data['first_name'] = first_name
+            
+        if middle_name:
+            user_data['middle_name'] = middle_name
+            
         if about_me:
             user_data['about_me'] = about_me
             

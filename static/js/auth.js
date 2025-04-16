@@ -39,6 +39,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const step3BackBtn = document.getElementById('step3BackBtn');
     const step3NextBtn = document.getElementById('step3NextBtn');
     
+    // Шаг ФИО
+    const stepFullName = document.getElementById('stepFullName');
+    const regLastName = document.getElementById('regLastName');
+    const regFirstName = document.getElementById('regFirstName');
+    const regMiddleName = document.getElementById('regMiddleName');
+    const stepFullNameBackBtn = document.getElementById('stepFullNameBackBtn');
+    const stepFullNameNextBtn = document.getElementById('stepFullNameNextBtn');
+    
     // Шаг 4: Анализ описания проекта
     const step4 = document.getElementById('step4');
     const descriptionText = document.getElementById('descriptionText');
@@ -72,13 +80,16 @@ document.addEventListener('DOMContentLoaded', function() {
     // Хранение текущего пользователя Telegram
     let currentTelegramUsername = '';
     let registrationInProgress = false;
-    const totalSteps = 7;
+    const totalSteps = 8;
     let currentStep = 1;
     
     // Данные пользователя
     let userData = {
         telegram_username: '',
         password: '',
+        last_name: '',
+        first_name: '',
+        middle_name: '',
         user_role: '',
         age: null,
         about_me: '',
@@ -94,8 +105,14 @@ document.addEventListener('DOMContentLoaded', function() {
     let tempSelectedTags = new Set();
     const MAX_DESCRIPTION_CHARS = 500;
     
-    // Обработка Bootstrap модального окна
+    // Инициализация Bootstrap модального окна
     const bootstrapModal = new bootstrap.Modal(authModal);
+    
+    // Обработчик для открытия модального окна
+    authModal.addEventListener('show.bs.modal', function() {
+        // При каждом новом открытии показываем вкладку входа
+        loginTab.click();
+    });
     
     // Инициализация Bootstrap таб-панелей
     const triggerTabList = document.querySelectorAll('#authTabs button');
@@ -109,10 +126,13 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // При закрытии модального окна
-    authModal.addEventListener('hidden.bs.modal', function () {
+    // Функция обработчик закрытия модального окна
+    function handleModalClose() {
         cancelRegistration();
-    });
+    }
+    
+    // При закрытии модального окна
+    authModal.addEventListener('hidden.bs.modal', handleModalClose);
     
     // Функция отмены регистрации
     function cancelRegistration() {
@@ -146,6 +166,9 @@ document.addEventListener('DOMContentLoaded', function() {
         if (confirmationCode) confirmationCode.value = '';
         if (regPassword) regPassword.value = '';
         if (regPasswordConfirm) regPasswordConfirm.value = '';
+        if (regLastName) regLastName.value = '';
+        if (regFirstName) regFirstName.value = '';
+        if (regMiddleName) regMiddleName.value = '';
         if (descriptionText) descriptionText.value = '';
         if (descriptionCharCounter) descriptionCharCounter.textContent = '0/500';
         if (userAgeInput) userAgeInput.value = '';
@@ -181,6 +204,9 @@ document.addEventListener('DOMContentLoaded', function() {
         userData = {
             telegram_username: '',
             password: '',
+            last_name: '',
+            first_name: '',
+            middle_name: '',
             user_role: '',
             age: null,
             about_me: '',
@@ -249,17 +275,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Обновляем кнопку профиля
                 updateProfileButton(data.user);
                 
+                // Отключаем обработчик сброса формы, чтобы не сбрасывать её при закрытии
+                authModal.removeEventListener('hidden.bs.modal', handleModalClose);
+                
                 // Закрываем модальное окно авторизации
-                const modalElement = document.getElementById('authModal');
-                const bootstrapModal = bootstrap.Modal.getInstance(modalElement);
                 bootstrapModal.hide();
                 
                 // Очищаем форму
                 document.getElementById('loginUsername').value = '';
                 document.getElementById('loginPassword').value = '';
                 
-                // Показываем уведомление об успешной авторизации
-                showNotification('Вы успешно вошли в систему', 'success');
+                // Показываем персонализированное уведомление об успешной авторизации
+                const firstName = data.user.first_name || '';
+                const greeting = firstName ? `${firstName}, вы успешно вошли в систему` : 'Вы успешно вошли в систему';
+                showNotification(greeting, 'success');
+                
+                // Возвращаем обработчик закрытия для будущих открытий
+                setTimeout(() => {
+                    authModal.addEventListener('hidden.bs.modal', handleModalClose);
+                }, 500);
             } else {
                 showNotification(data.error || 'Ошибка при входе в систему', 'error');
                 highlightInvalidField('loginUsername');
@@ -418,35 +452,72 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Кнопка "Завершить" для шага 3
+    // Шаг 3: Обработка кнопки "Продолжить"
     if (step3NextBtn) {
         step3NextBtn.addEventListener('click', function() {
+            // Получаем пароли
             const password = regPassword.value;
             const confirmPassword = regPasswordConfirm.value;
             
+            // Проверяем, что пароли не пустые
             if (!password || !confirmPassword) {
-                showNotification('Пожалуйста, заполните все поля', 'error');
+                showNotification('Пожалуйста, введите и подтвердите пароль', 'error');
                 return;
             }
             
+            // Проверяем минимальную длину пароля
             if (password.length < 8) {
-                showNotification('Пароль должен содержать не менее 8 символов', 'error');
+                showNotification('Пароль должен содержать минимум 8 символов', 'error');
                 return;
             }
             
+            // Проверяем, что пароли совпадают
             if (password !== confirmPassword) {
                 showNotification('Пароли не совпадают', 'error');
                 return;
             }
             
-            // Проверяем надежность пароля
-            const strength = checkPasswordStrength(password);
-            if (strength < 2) { // Если пароль слабый
-                showNotification('Пожалуйста, используйте более надежный пароль', 'warning');
+            // Сохраняем пароль
+            userData.password = password;
+            
+            // Переходим на шаг с ФИО
+            showStep('full_name');
+        });
+    }
+    
+    // Шаг ФИО: Обработка кнопки "Назад"
+    if (stepFullNameBackBtn) {
+        stepFullNameBackBtn.addEventListener('click', function() {
+            showStep(3);
+        });
+    }
+    
+    // Шаг ФИО: Обработка кнопки "Продолжить"
+    if (stepFullNameNextBtn) {
+        stepFullNameNextBtn.addEventListener('click', function() {
+            const lastName = regLastName.value.trim();
+            const firstName = regFirstName.value.trim();
+            const middleName = regMiddleName.value.trim();
+            
+            // Проверяем, что фамилия и имя не пустые
+            if (!lastName) {
+                showNotification('Пожалуйста, введите вашу фамилию', 'error');
+                highlightInvalidField('regLastName');
                 return;
             }
             
-            // Переходим к шагу с информацией о себе
+            if (!firstName) {
+                showNotification('Пожалуйста, введите ваше имя', 'error');
+                highlightInvalidField('regFirstName');
+                return;
+            }
+            
+            // Сохраняем ФИО
+            userData.last_name = lastName;
+            userData.first_name = firstName;
+            userData.middle_name = middleName;
+            
+            // Переходим на следующий шаг
             showStep(4);
         });
     }
@@ -1121,18 +1192,42 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Показываем шаг успешной регистрации
+                    // Показываем шаг успешной регистрации с обращением по имени
                     showStep(7);
+                    
+                    // Обновляем текст сообщения в шаге 7 с обращением по имени
+                    const successMessage = document.querySelector('#step7 .success-message p');
+                    if (successMessage) {
+                        successMessage.textContent = `${userData.first_name}, ваш аккаунт успешно создан. Вход в систему будет выполнен автоматически.`;
+                    }
+                    
+                    // Запускаем конфетти только здесь
                     startConfetti();
                     
                     // Автоматический вход пользователя
                     updateProfileButton(data.user);
                     
-                    // Закрываем модальное окно через 3 секунды
+                    // Сохраняем данные пользователя в localStorage
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    
+                    // Отключаем обработчик события hidden.bs.modal, чтобы избежать сброса формы
+                    authModal.removeEventListener('hidden.bs.modal', handleModalClose);
+                    
+                    // Закрываем модальное окно через 2 секунды
                     setTimeout(() => {
                         bootstrapModal.hide();
+                        
+                        // Показываем уведомление об успешной регистрации
                         showNotification('Вы успешно зарегистрированы и вошли в систему', 'success');
-                    }, 3000);
+                        
+                        // Сбрасываем флаг регистрации
+                        registrationInProgress = false;
+                        
+                        // Через 500 мс после закрытия снова добавляем обработчик для будущих открытий модального окна
+                        setTimeout(() => {
+                            authModal.addEventListener('hidden.bs.modal', handleModalClose);
+                        }, 500);
+                    }, 2000);
                 } else {
                     showNotification(data.error || 'Ошибка при регистрации', 'error');
                 }
@@ -1166,91 +1261,49 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Функция для переключения между шагами
     function showStep(step) {
-        // Проверка валидного шага
-        if (step < 1 || step > totalSteps) return;
+        // Скрываем все шаги
+        registerSteps.forEach(s => s.classList.remove('active'));
         
-        // Плавно скрываем предыдущий шаг
-        const currentActiveStep = document.querySelector('.register-step.active');
-        
-        if (currentActiveStep) {
-            // Запоминаем текущий активный шаг перед переходом
-            const currentStepNumber = parseInt(currentActiveStep.id.replace('step', ''), 10);
-            
-            // Добавляем класс для плавного выхода
-            currentActiveStep.style.opacity = '0';
-            currentActiveStep.style.transform = 'translateY(20px)';
-            
-            // После завершения анимации выхода
-            setTimeout(() => {
-                // Скрываем все шаги
-                registerSteps.forEach(s => {
-                    s.classList.remove('active');
-                    s.style.opacity = '';
-                    s.style.transform = '';
-                });
-                
-                // Показываем нужный шаг
-                let targetStep;
-                
-                switch(step) {
-                    case 1: targetStep = step1; break;
-                    case 2: targetStep = step2; break;
-                    case 3: targetStep = step3; break;
-                    case 4: targetStep = step4; break;
-                    case 5: targetStep = step5; break;
-                    case 6: targetStep = step6; break;
-                    case 7: targetStep = step7; break;
-                    default: targetStep = step1;
-                }
-                
-                if (targetStep) {
-                    targetStep.classList.add('active');
-                    
-                    // Плавная прокрутка к началу модального окна с небольшой задержкой
-                    setTimeout(() => {
-                        const modalBody = document.querySelector('.modal-body');
-                        if (modalBody) {
-                            modalBody.scrollTo({
-                                top: 0,
-                                behavior: 'smooth'
-                            });
-                        }
-                    }, 100);
-                }
-                
-                // Обновляем индикаторы шагов
-                updateStepIndicators(step);
-                
-            }, 300); // Задержка должна быть меньше времени перехода в CSS
-        } else {
-            // Если нет активного шага, просто показываем нужный
-            // Скрываем все шаги
-            registerSteps.forEach(s => s.classList.remove('active'));
-            
-            // Показываем нужный шаг
-            let targetStep;
-            
-            switch(step) {
-                case 1: targetStep = step1; break;
-                case 2: targetStep = step2; break;
-                case 3: targetStep = step3; break;
-                case 4: targetStep = step4; break;
-                case 5: targetStep = step5; break;
-                case 6: targetStep = step6; break;
-                case 7: targetStep = step7; break;
-                default: targetStep = step1;
-            }
-            
-            if (targetStep) {
-                targetStep.classList.add('active');
-            }
-            
-            // Обновляем индикаторы шагов
-            updateStepIndicators(step);
+        // Показываем нужный шаг и обновляем номер текущего шага
+        if (step === 1) {
+            step1.classList.add('active');
+            currentStep = 1;
+        } else if (step === 2) {
+            step2.classList.add('active');
+            currentStep = 2;
+        } else if (step === 3) {
+            step3.classList.add('active');
+            currentStep = 3;
+        } else if (step === 'full_name') {
+            stepFullName.classList.add('active');
+            currentStep = 4;
+        } else if (step === 4) {
+            step4.classList.add('active');
+            currentStep = 5;
+        } else if (step === 5) {
+            step5.classList.add('active');
+            currentStep = 6;
+        } else if (step === 6) {
+            step6.classList.add('active');
+            currentStep = 7;
+        } else if (step === 7) {
+            step7.classList.add('active');
+            currentStep = 8;
+            // Не запускаем confetti здесь, так как это будет сделано в обработчике завершения регистрации
         }
         
-        // Обновляем текущий шаг
-        currentStep = step;
+        // Обновляем индикаторы шагов
+        updateStepIndicators(currentStep);
+        
+        // Обновляем номер текущего шага
+        if (currentStepNumber) {
+            currentStepNumber.textContent = currentStep;
+        }
+        
+        // Обновляем прогресс-бар
+        if (progressIndicator) {
+            progressIndicator.style.width = (currentStep / totalSteps * 100) + '%';
+        }
     }
     
     // Функция для обновления индикаторов шагов
@@ -1482,6 +1535,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const confettiContainer = document.querySelector('.confetti');
         if (!confettiContainer) return;
         
+        // Очищаем контейнер перед добавлением новых конфетти
+        confettiContainer.innerHTML = '';
+        
         const colors = ['#f87171', '#60a5fa', '#34d399', '#fbbf24', '#a78bfa'];
         const totalConfetti = 100;
         
@@ -1503,10 +1559,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // Удаляем конфетти через 5 секунд
         setTimeout(() => {
             if (confettiContainer) {
-                const pieces = confettiContainer.querySelectorAll('.confetti-piece');
-                pieces.forEach(piece => piece.remove());
+                confettiContainer.innerHTML = '';
             }
-        }, 7000);
+        }, 5000);
     }
     
     // Проверка аутентификации при загрузке страницы
