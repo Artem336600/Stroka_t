@@ -351,6 +351,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 step2NextBtn.innerHTML = '<span>Подтвердить</span><i class="bi bi-check-lg ms-2"></i>';
                 
                 if (data.success) {
+                    // Автоматически переходим на следующий шаг
                     showStep(3);
                 } else {
                     showNotification(data.error || 'Неверный код подтверждения', 'error');
@@ -1130,51 +1131,132 @@ document.addEventListener('DOMContentLoaded', function() {
         // Проверка валидного шага
         if (step < 1 || step > totalSteps) return;
         
-        // Скрываем все шаги
-        registerSteps.forEach(s => s.classList.remove('active'));
+        // Плавно скрываем предыдущий шаг
+        const currentActiveStep = document.querySelector('.register-step.active');
         
-        // Показываем нужный шаг
-        let targetStep;
-        
-        switch(step) {
-            case 1: targetStep = step1; break;
-            case 2: targetStep = step2; break;
-            case 3: targetStep = step3; break;
-            case 4: targetStep = step4; break;
-            case 5: targetStep = step5; break;
-            case 6: targetStep = step6; break;
-            case 7: targetStep = step7; break;
-            default: targetStep = step1;
+        if (currentActiveStep) {
+            // Запоминаем текущий активный шаг перед переходом
+            const currentStepNumber = parseInt(currentActiveStep.id.replace('step', ''), 10);
+            
+            // Добавляем класс для плавного выхода
+            currentActiveStep.style.opacity = '0';
+            currentActiveStep.style.transform = 'translateY(20px)';
+            
+            // После завершения анимации выхода
+            setTimeout(() => {
+                // Скрываем все шаги
+                registerSteps.forEach(s => {
+                    s.classList.remove('active');
+                    s.style.opacity = '';
+                    s.style.transform = '';
+                });
+                
+                // Показываем нужный шаг
+                let targetStep;
+                
+                switch(step) {
+                    case 1: targetStep = step1; break;
+                    case 2: targetStep = step2; break;
+                    case 3: targetStep = step3; break;
+                    case 4: targetStep = step4; break;
+                    case 5: targetStep = step5; break;
+                    case 6: targetStep = step6; break;
+                    case 7: targetStep = step7; break;
+                    default: targetStep = step1;
+                }
+                
+                if (targetStep) {
+                    targetStep.classList.add('active');
+                    
+                    // Плавная прокрутка к началу модального окна с небольшой задержкой
+                    setTimeout(() => {
+                        const modalBody = document.querySelector('.modal-body');
+                        if (modalBody) {
+                            modalBody.scrollTo({
+                                top: 0,
+                                behavior: 'smooth'
+                            });
+                        }
+                    }, 100);
+                }
+                
+                // Обновляем индикаторы шагов
+                updateStepIndicators(step);
+                
+            }, 300); // Задержка должна быть меньше времени перехода в CSS
+        } else {
+            // Если нет активного шага, просто показываем нужный
+            // Скрываем все шаги
+            registerSteps.forEach(s => s.classList.remove('active'));
+            
+            // Показываем нужный шаг
+            let targetStep;
+            
+            switch(step) {
+                case 1: targetStep = step1; break;
+                case 2: targetStep = step2; break;
+                case 3: targetStep = step3; break;
+                case 4: targetStep = step4; break;
+                case 5: targetStep = step5; break;
+                case 6: targetStep = step6; break;
+                case 7: targetStep = step7; break;
+                default: targetStep = step1;
+            }
+            
+            if (targetStep) {
+                targetStep.classList.add('active');
+            }
+            
+            // Обновляем индикаторы шагов
+            updateStepIndicators(step);
         }
         
-        if (targetStep) {
-            targetStep.classList.add('active');
-        }
-        
-        // Обновляем индикаторы шагов
+        // Обновляем текущий шаг
+        currentStep = step;
+    }
+    
+    // Функция для обновления индикаторов шагов
+    function updateStepIndicators(step) {
+        // Обновляем индикаторы точек
         stepDots.forEach((dot, index) => {
             dot.classList.remove('active', 'completed');
             const dotStep = parseInt(dot.getAttribute('data-step'), 10);
             
             if (dotStep === step) {
                 dot.classList.add('active');
+                
+                // Центрируем активную точку с задержкой
+                setTimeout(() => {
+                    const stepIndicator = document.querySelector('.step-indicator');
+                    if (stepIndicator) {
+                        const dotRect = dot.getBoundingClientRect();
+                        const indicatorRect = stepIndicator.getBoundingClientRect();
+                        
+                        // Вычисляем положение для центрирования
+                        const scrollLeft = dot.offsetLeft - (indicatorRect.width / 2) + (dotRect.width / 2);
+                        
+                        // Плавно скроллим к нужной позиции
+                        stepIndicator.scrollTo({
+                            left: scrollLeft,
+                            behavior: 'smooth'
+                        });
+                    }
+                }, 350);
             } else if (dotStep < step) {
                 dot.classList.add('completed');
             }
         });
         
-        // Обновляем прогресс
+        // Обновляем прогресс-бар
         if (progressIndicator) {
             const stepPercent = (step / totalSteps) * 100;
             progressIndicator.style.width = `${stepPercent}%`;
         }
         
+        // Обновляем счетчик шагов
         if (currentStepNumber) {
             currentStepNumber.textContent = step;
         }
-        
-        // Обновляем текущий шаг
-        currentStep = step;
     }
     
     // Функция для обновления кнопки профиля

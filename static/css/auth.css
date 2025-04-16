@@ -4,23 +4,36 @@
     border: none;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
     overflow: hidden;
-    max-width: 460px;
+    max-width: 900px;
+    width: 100%;
     margin: 0 auto;
     background-color: #f8f9fa;
 }
 
+.modal-dialog.modal-lg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 920px;
+    width: 98%;
+    margin: 0 auto;
+    min-height: 100vh;
+}
+
 .auth-modal .modal-header {
-    background: #212529;
+    background: #000000;
     color: white;
-    padding: 1.5rem;
+    padding: 1.75rem;
     border-bottom: none;
     position: relative;
+    text-align: center;
 }
 
 .auth-modal .modal-title {
-    font-size: 1.5rem;
+    font-size: 1.75rem;
     font-weight: 700;
     letter-spacing: -0.5px;
+    margin: 0 auto;
 }
 
 .auth-modal .btn-close {
@@ -42,6 +55,27 @@
 .auth-modal .modal-body {
     padding: 0;
     background-color: #fff;
+    overflow-y: auto;
+    max-height: 85vh;
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+}
+
+.auth-modal .modal-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.auth-modal .modal-body::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.auth-modal .modal-body::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+.auth-modal .modal-body::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
 }
 
 /* Стили для вкладок */
@@ -55,8 +89,8 @@
 
 .auth-tab {
     text-align: center;
-    padding: 1.25rem 0;
-    font-size: 1rem;
+    padding: 1.5rem 0;
+    font-size: 1.1rem;
     font-weight: 500;
     color: #495057;
     cursor: pointer;
@@ -80,7 +114,7 @@
     left: 15%;
     width: 70%;
     height: 3px;
-    background-color: #212529;
+    background-color: #000000;
     border-radius: 3px 3px 0 0;
 }
 
@@ -107,7 +141,8 @@
 /* Формы входа и регистрации */
 .auth-form {
     display: none;
-    padding: 2rem;
+    padding: 3.5rem;
+    overflow: hidden;
 }
 
 .auth-form.active {
@@ -123,13 +158,19 @@
 /* Прогресс регистрации */
 .registration-progress {
     margin-bottom: 1.5rem;
+    position: sticky;
+    top: 0;
+    background-color: #fff;
+    z-index: 10;
+    padding-top: 15px;
+    padding-bottom: 5px;
 }
 
 .step-progress-bar {
-    height: 6px;
+    height: 8px;
     width: 100%;
     background-color: #e9ecef;
-    border-radius: 3px;
+    border-radius: 4px;
     overflow: hidden;
     margin-bottom: 0.75rem;
 }
@@ -138,7 +179,7 @@
     height: 100%;
     background: #212529;
     border-radius: 3px;
-    transition: width 0.5s ease;
+    transition: width 0.8s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 .steps-counter {
@@ -152,20 +193,25 @@
 .step-indicator {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    margin: 2rem 0 2.5rem;
+    justify-content: center;
+    margin: 0;
     position: relative;
-    padding: 0 10px;
+    padding: 30px 30px 30px;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    width: 100%;
 }
 
 .step-indicator::before {
     content: '';
     position: absolute;
-    top: 50%;
-    left: 10%;
-    right: 10%;
-    height: 2px;
-    background-color: #e9ecef;
+    top: 20px;
+    left: 80px;
+    right: 80px;
+    height: 4px;
+    background-color: #444;
     z-index: 1;
 }
 
@@ -175,15 +221,25 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
+    min-width: 140px;
+    flex-shrink: 0;
+    margin: 0 40px;
+}
+
+.step-dot:first-child {
+    margin-left: 70px;
+}
+
+.step-dot:last-child {
+    margin-right: 70px;
 }
 
 .step-dot-inner {
-    width: 26px;
-    height: 26px;
+    width: 45px;
+    height: 45px;
     border-radius: 50%;
     background-color: #fff;
-    border: 2px solid #ced4da;
+    border: 4px solid #444;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -193,8 +249,8 @@
 
 .step-dot-inner::before {
     content: '';
-    width: 10px;
-    height: 10px;
+    width: 18px;
+    height: 18px;
     border-radius: 50%;
     background-color: #fff;
     position: absolute;
@@ -204,6 +260,8 @@
 .step-dot.active .step-dot-inner {
     border-color: #212529;
     background-color: #fff;
+    transform: scale(1.2);
+    box-shadow: 0 0 0 6px rgba(33, 37, 41, 0.15);
 }
 
 .step-dot.active .step-dot-inner::before {
@@ -211,8 +269,8 @@
 }
 
 .step-dot.completed .step-dot-inner {
-    border-color: #198754;
-    background-color: #198754;
+    border-color: #212529;
+    background-color: #212529;
 }
 
 .step-dot.completed .step-dot-inner::before {
@@ -221,67 +279,82 @@
 }
 
 .step-label {
-    font-size: 0.8rem;
+    font-size: 1rem;
     font-weight: 500;
     color: #adb5bd;
     white-space: nowrap;
+    text-align: center;
+    margin-top: 12px;
 }
 
 .step-dot.active .step-label {
     color: #212529;
     font-weight: 600;
+    transform: scale(1.1);
 }
 
 .step-dot.completed .step-label {
-    color: #198754;
+    color: #212529;
     font-weight: 600;
 }
 
-/* Контент шагов */
-.register-step {
-    display: none;
-}
-
-.register-step.active {
-    display: block;
-    animation: fadeIn 0.4s;
-}
-
+/* Содержимое шагов */
 .step-title {
-    font-size: 1.4rem;
+    font-size: 2.2rem;
     font-weight: 700;
     color: #212529;
-    margin-bottom: 0.75rem;
+    margin-bottom: 1.3rem;
     letter-spacing: -0.5px;
 }
 
 .step-description {
     color: #6c757d;
-    font-size: 0.95rem;
-    margin-bottom: 2rem;
+    font-size: 1.25rem;
+    margin-bottom: 3.2rem;
     line-height: 1.5;
+}
+
+/* Контейнер для шагов */
+.register-steps-container {
+    position: relative;
+    min-height: 300px; /* Минимальная высота для контейнера шагов */
+}
+
+/* Контент шагов */
+.register-step {
+    display: none;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.register-step.active {
+    display: block;
+    animation: fadeInStep 0.6s ease forwards;
+    margin-top: 10px;
+    padding-top: 10px;
 }
 
 /* Поля формы */
 .form-group {
-    margin-bottom: 1.5rem;
+    margin-bottom: 2.2rem;
     position: relative;
 }
 
 .form-group label {
     display: block;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.75rem;
     font-weight: 500;
     color: #495057;
-    font-size: 0.95rem;
+    font-size: 1.05rem;
 }
 
 .form-control {
     width: 100%;
-    padding: 0.9rem 1rem;
+    padding: 1.2rem 1.5rem;
     border: 1px solid #dee2e6;
     border-radius: 8px;
-    font-size: 1rem;
+    font-size: 1.15rem;
     transition: all 0.2s ease;
     background-color: #f8f9fa;
 }
@@ -294,9 +367,9 @@
 }
 
 .form-text {
-    font-size: 0.8rem;
+    font-size: 0.9rem;
     color: #6c757d;
-    margin-top: 0.5rem;
+    margin-top: 0.75rem;
     display: block;
 }
 
@@ -307,21 +380,17 @@
 
 .input-icon {
     position: absolute;
-    left: 1rem;
+    left: 1.3rem;
     top: 50%;
     transform: translateY(-50%);
     color: #6c757d;
-    font-size: 1.1rem;
+    font-size: 1.25rem;
     transition: color 0.2s;
 }
 
 .input-icon-wrap .form-control {
-    padding-left: 2.7rem;
-    padding-right: 2.5rem;
-}
-
-.input-icon-wrap .form-control:focus + .input-icon {
-    color: #212529;
+    padding-left: 3.2rem;
+    padding-right: 3.2rem;
 }
 
 /* Индикатор силы пароля */
@@ -398,7 +467,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-top: 2rem;
+    margin-top: 2.5rem;
 }
 
 .auth-submit-btn, .auth-back-btn {
@@ -411,26 +480,29 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 48px;
+    height: 60px;
 }
 
 .auth-submit-btn {
-    background-color: #212529;
+    background-color: #000000;
     color: white;
-    padding: 0 1.75rem;
-    width: calc(100% - 60px);
+    padding: 0 2.5rem;
+    width: calc(100% - 70px);
+    font-size: 1.2rem;
 }
 
 .auth-submit-btn:hover {
-    background-color: #000;
+    background-color: #333333;
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .auth-back-btn {
-    width: 48px;
+    width: 60px;
+    height: 60px;
     background-color: #e9ecef;
     color: #495057;
+    font-size: 1.2rem;
 }
 
 .auth-back-btn:hover {
@@ -455,7 +527,7 @@
 
 .telegram-instructions-header i {
     font-size: 1.5rem;
-    color: #0088cc;
+    color: #000000;
     margin-right: 0.75rem;
 }
 
@@ -498,7 +570,7 @@
     justify-content: center;
     width: 24px;
     height: 24px;
-    background-color: #0088cc;
+    background-color: #000000;
     color: white;
     border-radius: 50%;
     font-size: 0.75rem;
@@ -522,7 +594,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background-color: #0088cc;
+    background-color: #000000;
     color: white;
     padding: 0.75rem 1.5rem;
     border-radius: 8px;
@@ -532,9 +604,9 @@
 }
 
 .telegram-link:hover {
-    background-color: #0077b3;
+    background-color: #333333;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 136, 204, 0.2);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .telegram-link i {
@@ -618,25 +690,23 @@
 }
 
 /* Адаптивность */
-@media (max-width: 576px) {
+@media (max-width: 768px) {
     .auth-form {
-        padding: 1.25rem 1.5rem 1.75rem;
+        padding: 2rem 1.5rem;
     }
     
     .step-title {
-        font-size: 1.15rem;
+        font-size: 1.5rem;
     }
     
     .step-description {
-        font-size: 0.85rem;
+        font-size: 1rem;
+        margin-bottom: 2rem;
     }
     
     .form-control {
-        padding: 0.7rem 0.9rem;
-    }
-    
-    .telegram-instructions-header h4 {
-        font-size: 0.95rem;
+        padding: 1rem 1.2rem;
+        font-size: 1rem;
     }
 }
 
@@ -1069,6 +1139,23 @@
     }
     to {
         opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Исправление отступов для контейнера содержимого */
+.tab-content {
+    padding-bottom: 20px;
+}
+
+/* Улучшенные анимации для шагов */
+@keyframes fadeInStep {
+    from { 
+        opacity: 0; 
+        transform: translateY(20px);
+    }
+    to { 
+        opacity: 1; 
         transform: translateY(0);
     }
 } 
